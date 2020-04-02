@@ -8,11 +8,11 @@
 ## data structure
 ```json
  {
-    data: {
-        mode: '1',
-        profile: {}
-        profiles: [],
-        settings: {}
+    "data": {
+        "mode": "1",
+        "profile": {}
+        "profiles": [],
+        "settings": {}
     }
  }
  ```
