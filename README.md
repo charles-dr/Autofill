@@ -5,3 +5,14 @@
 - save billing information
 
 
+## data structure
+```json
+ {
+    data: {
+        mode: '1',
+        profile: {}
+        profiles: [],
+        settings: {}
+    }
+ }
+ ```

@@ -23,5 +23,21 @@
     "128": "images/get_started128.png"
   },
   "options_page": "src/options.html",
+  "content_scripts": [
+    {
+       "all_frames": true,
+       "css": [],
+       "js": [
+          "src/js/common.js",
+          "src/js/aio/autofill_regex_constants.js",
+          "src/js/aio/aio.js"
+       ],
+       "match_about_blank": true,
+       "matches": [
+          "\u003Call_urls>"
+       ],
+       "run_at": "document_start"
+    }
+  ],
   "manifest_version": 2
 }
