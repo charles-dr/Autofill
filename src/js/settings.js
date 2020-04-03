@@ -20,18 +20,6 @@ function loadData() {
         if (result && result.data.profile) {
             fillProfileForm(result.data.profile);
         }
-        // let profiles = [];
-        // if (result && result.profiles) {
-        //     profiles = result.profiles;
-        // }
-
-        // const defaultProfileIndex = 0;
-        // if (profiles.length == 0) {
-        //     return;
-        // }
-
-        // const fillIndex = profiles[defaultProfileIndex] ? defaultProfileIndex : 0;
-        // fillProfileForm(profiles[fillIndex]);
     })
 }
 
@@ -55,7 +43,7 @@ function saveProfile(profile) {
         } else {
             profiles.push(profile);
         }
-        data.profiles = profiles;
+        data.profiles = filterProfile(profiles);
         data.profile = profile;
         data.mode = '1';
 
@@ -137,4 +125,14 @@ function fillProfileForm(profile) {
     document.getElementById('cvv').value = profile.card.cvv;
 }
 
+function filterProfile(profiles) {
+    if (typeof profiles == 'object') {
+        let filtered = [];
+        for (let profile of profiles) {
+            if (profile.bill && profile.card) filtered.push(profile);
+        }
+        return filtered;
+    }
+    return profiles;
+}
 

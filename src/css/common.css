@@ -4,12 +4,17 @@
     --bg-button: #470E47;
     --bg-btn-hover: #56114C;
     --bg-input: #2b2b52;
+    --fg-body: #7191B9;
     --fg-label: #7191B9;
     --fg-input: #9aa5cc;
     --fg-button: #FFE58A;
 }
 
-body { background: var(--bg-body); margin:0; padding: 0; }
+body { background: var(--bg-body); color: var(--fg-body); margin:0; padding: 0; }
+
+.preloader { width: 16px; height: 16px; margin-right: 0px; display: none; }
+
+.align-center { vertical-align: middle; }
 
 .header { background: var(--bg-head); font-size: 24px; color: #b9c2e6; padding: 15px 0; text-align: center; font-family: Arial, sans-serif; font-weight: bold; }
 

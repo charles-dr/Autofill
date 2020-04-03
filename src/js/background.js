@@ -12,12 +12,12 @@ reloadData();
 
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
 	console.log('[background]-onMessage', request, sender, sendResponse, request.msgType);
-  var msgType = request.msgType;
+	var msgType = request.msgType;
 
 	if (msgType === "data") {
-		sendResponse({data: result});
-  }
-  // else if (msgType === "reloadData") {
+		sendResponse({ data: result });
+	}
+	// else if (msgType === "reloadData") {
 	// 	reloadData();
 	// } else if (msgType === "items") {
 	// 	processItems(request, sender);
@@ -52,74 +52,52 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
-  if (info.status === 'complete') {
-    
-  }
+	if (info.status === 'complete') {
+
+	}
 });
 
 // restrict the activation based active domains
 chrome.runtime.onInstalled.addListener(function () {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
-        // pageUrl: {hostEquals: 'developer.chrome.com'},
-      })
-      ],
-      actions: [new chrome.declarativeContent.ShowPageAction()]
-    }]);
-  });
+	console.log('[Installed]');
+	chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
+		chrome.declarativeContent.onPageChanged.addRules([{
+			conditions: [new chrome.declarativeContent.PageStateMatcher({
+				// pageUrl: {hostEquals: 'developer.chrome.com'},
+			})
+			],
+			actions: [new chrome.declarativeContent.ShowPageAction()]
+		}]);
+	});
 });
 
-// function sendWebhook(url, website, name, image, isShopify) {
-// 	console.log('[background] - sendWebhook',{
-// 		url: url,
-// 		website: website,
-// 		name: name,
-// 		image: image,
-// 		isShopify: isShopify
-// 	});
-// 	var xhr = new XMLHttpRequest();
-// 	xhr.open("POST", url ? url : getWebhook());
-// 	xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-// 	var fields = [
-// 		{
-// 			"name": "Website",
-// 			"value": website
-// 		},
-//      	{
-// 			"name": isShopify ? "Product" : "Keywords Found",
-// 			"value": name
-// 		}
-// 	];
-	
-// 	var data = {
-// 		"avatar_url": "https://i.imgur.com/dI7i9Wl.png",
-// 		"username": "Auto Fill",
-// 		"embeds": [
-// 			{
-//   				"title": ":fire: Successfully Assisted User Checkout :fire:",
-//   				"color": "7297791",
-// 				"fields": fields,
-//     			"thumbnail": {
-//       				"url": image
-//     			},
-//     			"footer": {
-//         			"text": "Auto Fill by Fattye Xtension v" + version,
-//         			"icon_url": "https://i.imgur.com/dI7i9Wl.png"
-//       			},
-//       			"timestamp": new Date()
-//   			}
-//   		]
-// 	};
-// 	xhr.send(JSON.stringify(data));
-// }
+
+function ajaxTest(url, data, headers) {
+	var xhttp = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				// Typical action to be performed when the document is ready:
+				console.log(xhttp.responseText);
+				resolve(JSON.parse(xhttp.responseText));
+				// document.getElementById("demo").innerHTML = xhttp.responseText;
+			}
+		};
+		xhttp.open("POST", url, true);
+		// xhttp.setRequestHeader('Content-Type', 'application/json');
+		for (let key in headers) {
+			xhttp.setRequestHeader(key, headers[key]);
+		}
+		xhttp.send(JSON.stringify(data));
+	})
+}
 
 function reloadData() {
-  chrome.storage.local.get(["data"], function (res) {
-      if (res && res.data) {
-          result = res.data;
-      }
-  })
+	chrome.storage.local.get(["data"], function (res) {
+		if (res && res.data) {
+			result = res.data;
+		}
+	})
 }
 
 function getWebhook() {

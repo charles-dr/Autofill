@@ -2,7 +2,8 @@
 
 var EVENT_PARAMS = { bubbles: true };
 const GLOBAL_E_GET_MERCHANT_REGEX = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
-
+const API_ENDPOINT = "https://www.restockintel.com/api/v1";
+const API_KEY = 'ak_ihs5TCJ8TX6FXCrxMf5d';
 
 function getGlobalEMerchant() {
     var html = document.getElementsByTagName("html")[0];
@@ -45,3 +46,56 @@ function docReady(fn) {
         document.addEventListener("DOMContentLoaded", fn);
     }
 }
+
+function ajaxPost(url, data, headers) {
+	var xhttp = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				console.log(xhttp.responseText);
+				resolve(JSON.parse(xhttp.responseText));
+			}
+		};
+		xhttp.open("POST", url, true);
+		for (let key in headers) {
+			xhttp.setRequestHeader(key, headers[key]);
+		}
+        xhttp.setRequestHeader('Authorization', `Bearer ${API_KEY}`);
+		xhttp.send(JSON.stringify(data));
+	})
+}
+
+function ajaxGet(url, headers) {
+	var xhttp = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				// console.log(xhttp.responseText);
+				resolve(JSON.parse(xhttp.responseText));
+			}
+		};
+		xhttp.open("GET", url, true);
+		for (let key in headers) {
+			xhttp.setRequestHeader(key, headers[key]);
+        }
+        xhttp.setRequestHeader('Authorization', `Bearer ${API_KEY}`);
+		xhttp.send();
+	})
+}
+
+function authURL(url) {
+    return API_ENDPOINT + url;
+}
+
+function storeActivationInfo(info, callback) {
+    chrome.storage.local.get(["data"], function (store) { console.log('[Activation] loaded', store);
+        if (store && store.data) {
+            store.data.activation = info; 
+            chrome.storage.local.set({data: store.data}, function() {
+                console.log('[Activation] saved', store);
+                if (callback && typeof callback === 'function') callback();
+            });
+        }
+    })
+}
+
