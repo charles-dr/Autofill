@@ -268,6 +268,9 @@ var REGEX_MATH = new RegExp(
     "[\\d\\.\\[\\]\\(\\)\\{\\}\\-\\+\\*\\/x\\s\\?\\=]+"
 , "i");
 
+const REGEX_NAME_TO_CHECKOUT = new RegExp(
+    "continue.*?shipping|continue.*?button|pay.*?|donat.*?|complete.*?order|continue.*?payment"
+, "i");
 
 /*
 // Copyright 2013 The Chromium Authors. All rights reserved.

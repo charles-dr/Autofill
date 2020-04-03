@@ -4,7 +4,6 @@ docReady(function () {
     checkAuthAndExist();
     tabSelected(document.querySelector('.tabs .tab'));
 
-
     document.getElementById('btn-save-profile').addEventListener('click', function (e) {
         console.log('[Save Profile]');
         e.preventDefault();
@@ -39,7 +38,6 @@ docReady(function () {
             tabSelected(this);
         });
     })
-
 })
 
 function loadData() {
@@ -223,6 +221,7 @@ function tabSelected(elem) {
         tab.classList.remove('active');
     });
     elem.classList.add('active');
+    // document.getElementById('header').innerText = elem.innerText;
 
     // tab panes
     document.querySelectorAll('.tab-pane').forEach(function(tabPane) {

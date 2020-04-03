@@ -54,7 +54,11 @@ function ajaxPost(url, data, headers) {
 			if (this.readyState == 4 && this.status == 200) {
 				console.log(xhttp.responseText);
 				resolve(JSON.parse(xhttp.responseText));
-			}
+			} else if (this.status == 404) {
+                reject(404);
+            } else if (this.status >= 400) {
+                reject(400);
+            }
 		};
 		xhttp.open("POST", url, true);
 		for (let key in headers) {
@@ -72,7 +76,11 @@ function ajaxGet(url, headers) {
 			if (this.readyState == 4 && this.status == 200) {
 				// console.log(xhttp.responseText);
 				resolve(JSON.parse(xhttp.responseText));
-			}
+			} else if (this.status == 404) {
+                reject(404);
+            } else if (this.status >= 400) {
+                reject(400);
+            }
 		};
 		xhttp.open("GET", url, true);
 		for (let key in headers) {

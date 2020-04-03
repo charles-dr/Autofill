@@ -19,7 +19,7 @@ function activateUser(e) {
             device_name: document.getElementById('device_name').value
         }
     };
-    if (token) {
+    if (true) {
         document.querySelector('#btn-activate img').style.display = 'inherit';
         document.getElementById('btn-activate').attributes.disabled = 'true';
         ajaxPost(authURL(`/activations`), data, { 'Content-Type': 'application/json' })

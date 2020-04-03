@@ -27,6 +27,9 @@ var ref = isIframe() && document.referrer ? getVal(document.referrer) : getVal(d
 var items = [];
 var elements = [];
 
+var autofill_count = 0;
+
+
 function dispatchInputEvent(elem) {
 	if (elem) {
 		dispatchEvent(elem, EVENT_PARAMS, "input");
@@ -36,6 +39,22 @@ function dispatchInputEvent(elem) {
 function dispatchKeydownEvent(elem) {
 	if (elem) {
 		dispatchEvent(elem, EVENT_PARAMS, "keydown");
+	}
+}
+
+function dispatchClickEvent(elem) {
+	if (elem) {
+		// dispatchEvent(elem, EVENT_PARAMS, "mousedown");
+		// elem.dispatchEvent(new Event('mousedown'));
+		const attrName = 'auto-checkout-done';
+		// if (elem.attributes[attrName] === undefined) {
+			elem.click(); //console.log('[dispatched]', elem);
+			elem.attributes[attrName] = 'true';
+		// }
+		
+		// var e = document.createEvent('HTMLEvents');
+		// e.initEvent('mousedown', false, true);
+		// elem.dispatchEvent(e);
 	}
 }
 
@@ -131,7 +150,7 @@ function isDocumentInteractiveComplete() {
 }
 
 function validElement(elem) {
-	return elem && isVisible(elem) && (!isElementInViewport(elem) || isShopifyCheckoutPages()) && !isDisabled(elem);
+	return elem && isVisible(elem) && (!isElementInViewport(elem) || isShopifyCheckoutPages()) && !isDisabled(elem) && !isParentFormTransparent(elem);
 }
 
 function isVisible(elem) {
@@ -170,6 +189,11 @@ function isElementInViewport(elem) {
 	out.any = out.top || out.left || out.bottom || out.right;
 
 	return out.any;
+}
+
+function isParentFormTransparent(elem) {
+	if (elem.form.style.opacity) console.log('opacity', elem.form.style.opacity)
+	return elem.form.style.opacity === 0 ? true : false;
 }
 
 /** accepts excluded sites list paramter **/
@@ -373,11 +397,20 @@ function isDefaultMode(mode) {
 chrome.extension.sendMessage({msgType: "data"}, result => {
 	console.log('[starting] ?', result)
 	if (result.data && result.data.profile && isIncludedSite(result.data.excludedSites)) {
+		
 		setInterval(function() {
+				autofill_count ++;
 				processAIO(result);
 			},
 			DELAY
 		);
+		setTimeout(function() {
+			setInterval(function() {
+				// click event
+				processCheckout(result);
+			}, DELAY);			
+		}, DELAY * 20);
+
 	}
 });
 
@@ -391,6 +424,36 @@ function process(result) {
 	processInputAIO(result, "input");
 	processInputAIO(result, "textarea");
 	processSelect(result);
+}
+
+function attemptCheckout(elem, mode) {
+	// id, text, value
+	const strId = elem.attributes['id'] ? elem.attributes['id'].value : '';
+	const strText = elem.innerText || '';
+	const strValue = elem.value || '';
+
+	let regx = REGEX_NAME_TO_CHECKOUT;
+	if (!isDefaultMode(mode)) { return; }
+	if (!validElement(elem)) return;
+
+	if (!!strId && strId.match(regx)) {
+		dispatchClickEvent(elem);
+	} else if (!!strText && strText.match(regx)) {
+		dispatchClickEvent(elem);
+	} else if (!!strValue && strValue.match(regx)) {
+		dispatchClickEvent(elem);
+	}
+}
+
+function processCheckout(result) {
+	// dispatchClickEvent(document.getElementById('continue_button')) ;
+	// console.log(document.querySelectorAll('button').length, document.querySelectorAll('input[type="submit"]').length);
+	for (let button of document.querySelectorAll('button')) { 
+		attemptCheckout(button, result.data.mode);
+	}
+	for (let submit of document.querySelectorAll('input[type="submit"]')) {
+		attemptCheckout(submit, result.data.mode);
+	}
 }
 
 function addListeners(result) {

@@ -4,11 +4,17 @@
 
 'use strict';
 
+let itemsMap = new Map();
+const DEFAULT_URL_REGEX = new RegExp("^(https?://[\\w.-]+)/?.*", "i");
+const SHOPIFY_URL_REGEX = new RegExp("^(https?://.+?)/.*(?:checkouts|orders)/(\\w+)?(?:$|\\?|/thank_you)", "i");
+const BIGCARTEL_URL_REGEX = new RegExp("^(https?://checkout.bigcartel.com)/(\\w+)/.*", "i");
+let version = chrome.runtime.getManifest().version;
+
 let result;
 
 
-reloadData();
 
+reloadData();
 
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
 	console.log('[background]-onMessage', request, sender, sendResponse, request.msgType);
@@ -16,39 +22,11 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
 
 	if (msgType === "data") {
 		sendResponse({ data: result });
+	} else if (msgType === "reloadData") {
+		reloadData();
+	} else if (msgType === "items") {
+		processItems(request, sender);
 	}
-	// else if (msgType === "reloadData") {
-	// 	reloadData();
-	// } else if (msgType === "items") {
-	// 	processItems(request, sender);
-	// } else if (msgType === "itemsSuccess") {
-	// 	var url = request.url ? request.url : sender.url;
-	// 	var m = url.match(DEFAULT_URL_REGEX);
-	// 	if (m) {
-	// 		chrome.storage.local.get(["data"], function(result) {
-	// 			var details = itemsMap.get(sender.tab.id);
-	// 			if (details && m[1] === details.url) {
-	// 				for (var item of request.items) {
-	// 					sendWebhook(null, details.url, item.alt, item.src, true);
-	//             		if (result && result.data && result.data.webhook) {
-	//             			sendWebhook(result.data.webhook, details.url, item.alt, item.src, true);
-	// 					}
-	// 				}
-	// 				itemsMap.delete(sender.tab.id);
-	// 			}
-	// 		});
-	// 	}
-	// } else if (msgType === "keywords") {
-	// 	processKeywords(request, sender);
-	// } else if (msgType === "tabId") {
-	// 	sendResponse({tabId: sender.tab.id})
-	// } else if (msgType === "testWebhook") {
-	// 	chrome.storage.local.get(["data"], function(result) {
-	// 		if (result && result.data && result.data.webhook) {
-	// 			sendWebhook(result.data.webhook, "https://www.testwebhook.com", "Test Webhook", "https://i.imgur.com/dI7i9Wl.png", true);
-	// 		}
-	// 	});
-	// }
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
@@ -103,4 +81,41 @@ function reloadData() {
 function getWebhook() {
 	console.log('[BK] - getWebhook');
 	return webhooks[getRandomNumber(0, webhooks.length)];
+}
+
+function processItems(request, sender) {
+	console.log('[bk] - processItems', request, sender);
+	if (request.url) {
+		var m = sender.url.match(BIGCARTEL_URL_REGEX);
+		if (m) {
+			itemsMap.set(sender.tab.id, {url: m[1], key: m[2], items: request.items, store: request.url});
+			return;
+		}
+
+		m = request.url.match(DEFAULT_URL_REGEX);
+		if (m) {
+			if (request.items) {
+				itemsMap.set(sender.tab.id, {url: m[1], items: request.items});
+			} else {
+				itemsMap.set(sender.tab.id, {url: m[1]});
+			}
+		}
+	} else {
+		var url = sender.url.toLowerCase();
+		var m = url.match(SHOPIFY_URL_REGEX);
+		if (m) {
+			itemsMap.set(sender.tab.id, {url: m[1], key: m[2], items: request.items});
+			return;
+		}
+
+		if (url.includes("/checkouts/")) {
+			return;
+		}
+		
+		m = url.match(DEFAULT_URL_REGEX);
+		if (m) {
+			itemsMap.set(sender.tab.id, {url: m[1], items: request.items});
+			return;
+		}
+	}
 }
