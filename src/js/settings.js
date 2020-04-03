@@ -2,6 +2,9 @@
 docReady(function () {
     loadData();
     checkAuthAndExist();
+    tabSelected(document.querySelector('.tabs .tab'));
+
+
     document.getElementById('btn-save-profile').addEventListener('click', function (e) {
         console.log('[Save Profile]');
         e.preventDefault();
@@ -13,7 +16,7 @@ docReady(function () {
         saveProfile(formData);
     });
 
-    document.getElementById('profile_names').addEventListener('change', function() {
+    document.getElementById('profile_names').addEventListener('change', function () {
         const value = this.value;
         chrome.storage.local.get(["data"], function (store) {
             if (!store || !store.data) return;
@@ -22,13 +25,21 @@ docReady(function () {
                 // console.log('[]', prf.name, value)
                 if (prf.name == value) {
                     store.data.profile = prf;
-                    chrome.storage.local.set({data: store.data}, function() {
+                    chrome.storage.local.set({ data: store.data }, function () {
                         loadData();
                     })
                 }
             }
         });
+    });
+
+    // tab
+    document.querySelectorAll('.tabs .tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            tabSelected(this);
+        });
     })
+
 })
 
 function loadData() {
@@ -37,6 +48,9 @@ function loadData() {
         if (result && result.data.profile) {
             fillProfileForm(result.data.profile);
             fillProfilesSelect(result.data);
+            if (result.data.activation) {
+                fillActivationSection(result.data.activation);
+            }
         }
     })
 }
@@ -173,21 +187,21 @@ function filterProfile(profiles) {
 
 /** Check if user already is authorized, if not, close self tab */
 function checkAuthAndExist() {
-    chrome.storage.local.get(["data"], function(store) { 
+    chrome.storage.local.get(["data"], function (store) {
         if (store && store.data && store.data.activation) {
             const token = store.data.activation.activation_token;
             ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
-            .then(function(res) {
-                // console.log(res);
-                if (res.success && res.success === true) {
-                } else {
+                .then(function (res) {
+                    // console.log(res);
+                    if (res.success && res.success === true) {
+                    } else {
+                        closeSelf();
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
                     closeSelf();
-                }
-            })
-            .catch(function(error) {
-                console.log(error);
-                closeSelf();
-            });
+                });
         }
     });
 
@@ -195,9 +209,32 @@ function checkAuthAndExist() {
 
 // close self tab
 function closeSelf() {
-    chrome.tabs.getCurrent(function(tab) {
-        chrome.tabs.remove([tab.id], function() {
+    chrome.tabs.getCurrent(function (tab) {
+        chrome.tabs.remove([tab.id], function () {
             console.error('[Unauthorized!]');
         })
-    })    
+    })
 }
+
+// action for tab selection
+function tabSelected(elem) {
+    const targetId = elem.attributes['data-target'].value;
+    document.querySelectorAll('.tabs .tab').forEach(function (tab) {
+        tab.classList.remove('active');
+    });
+    elem.classList.add('active');
+
+    // tab panes
+    document.querySelectorAll('.tab-pane').forEach(function(tabPane) {
+        tabPane.style.display = 'none';
+    })
+    document.getElementById(`${targetId}`).style.display = 'block';
+}
+
+function fillActivationSection(activation) {
+    document.getElementById('actv_key').value       = activation.key
+    document.getElementById('actv_hwid').value      = activation.activation.hwid;
+    document.getElementById('actv_device').value    = activation.activation.device_name;
+    document.getElementById('actv_token').value     = activation.activation_token;
+}
+

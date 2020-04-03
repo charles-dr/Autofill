@@ -2,3 +2,7 @@
 
 }
 
+.tabs { display: flex; justify-content: space-between; padding-bottom: 10px; }
+.tabs .tab { width: 100%; font-size: 14px; text-align: center; margin-bottom: 5px; padding-bottom: 5px; cursor: pointer; padding-top: 7px; transition: all .2s; }
+.tabs .tab:hover { color: #81afe8; }
+.tabs .tab.active { border-bottom: 1px solid #404096; font-weight: bold; color: #81afe8; background-color: #1b1b42; }
