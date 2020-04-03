@@ -1,5 +1,6 @@
 
-#authorize_form { display: none; }
+/* #authorize_form { display: none; } */
+#activate_form { display: none; }
 form{ min-height: 250px; }
 
 .link_to { font-weight: bold; cursor: pointer; transition: color: 0.2s; }

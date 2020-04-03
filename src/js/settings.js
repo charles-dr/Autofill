@@ -1,7 +1,7 @@
 
 docReady(function () {
     loadData();
-
+    checkAuthAndExist();
     document.getElementById('btn-save-profile').addEventListener('click', function (e) {
         console.log('[Save Profile]');
         e.preventDefault();
@@ -12,6 +12,23 @@ docReady(function () {
         const formData = getFormData();
         saveProfile(formData);
     });
+
+    document.getElementById('profile_names').addEventListener('change', function() {
+        const value = this.value;
+        chrome.storage.local.get(["data"], function (store) {
+            if (!store || !store.data) return;
+            let profile = {};
+            for (let prf of store.data.profiles) {
+                // console.log('[]', prf.name, value)
+                if (prf.name == value) {
+                    store.data.profile = prf;
+                    chrome.storage.local.set({data: store.data}, function() {
+                        loadData();
+                    })
+                }
+            }
+        });
+    })
 })
 
 function loadData() {
@@ -19,6 +36,7 @@ function loadData() {
         console.log('[loadData]', result);
         if (result && result.data.profile) {
             fillProfileForm(result.data.profile);
+            fillProfilesSelect(result.data);
         }
     })
 }
@@ -49,6 +67,7 @@ function saveProfile(profile) {
 
         chrome.storage.local.set({ data: data }, function () {
             alert('Data has been successfully saved!');
+            loadData();
         });
     });
 }
@@ -104,6 +123,21 @@ function checkSavedProfileWithSameName(profiles, profile) {
     return -1;
 }
 
+function fillProfilesSelect(data) {
+    let optionsHTML = '';
+    for (let profile of data.profiles) {
+        const selected = profile.name == data.profile.name ? 'selected' : '';
+        optionsHTML += `<option value="${profile.name}" ${selected}>${profile.name}</option>`;
+    }
+    const select = document.getElementById('profile_names');
+    if (data.profiles.length === 0) {
+        optionsHTML = `<option disabled>No profiles</option>`;
+    } else {
+        optionsHTML = `<option disabled>Select profile</option>` + optionsHTML;
+    }
+    select.innerHTML = optionsHTML;
+}
+
 /**
  * @description fill the profile form with the given data
  */
@@ -125,6 +159,7 @@ function fillProfileForm(profile) {
     document.getElementById('cvv').value = profile.card.cvv;
 }
 
+// filter profile with new rule
 function filterProfile(profiles) {
     if (typeof profiles == 'object') {
         let filtered = [];
@@ -136,3 +171,33 @@ function filterProfile(profiles) {
     return profiles;
 }
 
+/** Check if user already is authorized, if not, close self tab */
+function checkAuthAndExist() {
+    chrome.storage.local.get(["data"], function(store) { 
+        if (store && store.data && store.data.activation) {
+            const token = store.data.activation.activation_token;
+            ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
+            .then(function(res) {
+                // console.log(res);
+                if (res.success && res.success === true) {
+                } else {
+                    closeSelf();
+                }
+            })
+            .catch(function(error) {
+                console.log(error);
+                closeSelf();
+            });
+        }
+    });
+
+}
+
+// close self tab
+function closeSelf() {
+    chrome.tabs.getCurrent(function(tab) {
+        chrome.tabs.remove([tab.id], function() {
+            console.error('[Unauthorized!]');
+        })
+    })    
+}
