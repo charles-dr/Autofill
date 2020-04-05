@@ -95,7 +95,7 @@ function authURL(url) {
     return API_ENDPOINT + url;
 }
 
-function storeActivationInfo(info, callback) {
+function storeActivationInfo(info, callback = null) {
     chrome.storage.local.get(["data"], function (store) { console.log('[Activation] loaded', store);
         if (store && store.data) {
             store.data.activation = info; 
@@ -105,5 +105,19 @@ function storeActivationInfo(info, callback) {
             });
         }
     })
+}
+
+function unauthorizeUser(callback = null) {
+    chrome.storage.local.get(['data'], function(store) { 
+        if (store && store.data) {
+            store.data.activation = null;
+            chrome.storage.local.set({data: store.data}), function() {
+                console.log('Unauthorized!');
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+            }
+        }
+    });
 }
 

@@ -29,8 +29,8 @@
        "css": [],
        "js": [
           "src/js/common.js",
-          "src/js/aio/autofill_regex_constants.js",
-          "src/js/aio/aio.js"
+          "src/js/contents/patterns.js",
+          "src/js/contents/actions.js"
        ],
        "match_about_blank": true,
        "matches": [

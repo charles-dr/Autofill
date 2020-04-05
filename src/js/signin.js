@@ -34,6 +34,8 @@ function activateUser(e) {
         })
         .catch(function(error) {
             console.log(error)
+            document.querySelector('#btn-activate img').style.display = 'none';
+            document.getElementById('btn-activate').attributes.disabled = 'false';
         });
     }
 }
@@ -55,22 +57,29 @@ function authorizeUser(e) {
                 storeActivationInfo(res, function() {
                     chrome.tabs.create({url: 'src/settings.html'})
                 });
+            } else {
+                unauthorizeUser();
             }
         })
         .catch(function(error) {
             console.log(error)
+            unauthorizeUser()
         });
     }
 }
 
 // show authorization form, and hide activation form
 function showAuthorizeForm() {
+    document.querySelector('#btn-authorize img').style.display = 'none';
+    document.getElementById('btn-authorize').attributes.disabled = 'false';
     document.getElementById('authorize_form').style.display = 'block';
     document.getElementById('activate_form').style.display = 'none';
 }
 
 // show activation form, and hide authorization form
 function showActivateForm() {
+    document.querySelector('#btn-activate img').style.display = 'none';
+    document.getElementById('btn-activate').attributes.disabled = 'false';
     document.getElementById('activate_form').style.display = 'block';
     document.getElementById('authorize_form').style.display = 'none';
 }
@@ -78,6 +87,7 @@ function showActivateForm() {
 // check if user already authorized. if yes, open settings.html
 function checkActivation() {
     chrome.storage.local.get(["data"], function (store) {
+        console.log(store);
         if (store && store.data && store.data.activation) {
             const token = store.data.activation.activation_token;
             document.querySelector('#btn-authorize img').style.display = 'inherit';
@@ -92,11 +102,13 @@ function checkActivation() {
                         chrome.tabs.create({url: 'src/settings.html'})
                     });
                 } else {
+                    unauthorizeUser();
                     showActivateForm();
                 }
             })
             .catch(function(error) {
                 console.log(error);
+                unauthorizeUser();
                 showActivateForm();
             });
         } else {

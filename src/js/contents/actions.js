@@ -396,7 +396,7 @@ function isDefaultMode(mode) {
 // start point
 chrome.extension.sendMessage({msgType: "data"}, result => {
 	console.log('[starting] ?', result)
-	if (result.data && result.data.profile && isIncludedSite(result.data.excludedSites)) {
+	if (result.data && result.data.activation && result.data.profile && isIncludedSite(result.data.excludedSites)) {
 		
 		setInterval(function() {
 				autofill_count ++;

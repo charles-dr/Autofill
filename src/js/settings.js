@@ -1,7 +1,7 @@
 
 docReady(function () {
     loadData();
-    checkAuthAndExist();
+    // checkAuthAndExist();
     tabSelected(document.querySelector('.tabs .tab'));
 
     document.getElementById('btn-save-profile').addEventListener('click', function (e) {
@@ -193,11 +193,13 @@ function checkAuthAndExist() {
                     // console.log(res);
                     if (res.success && res.success === true) {
                     } else {
+                        unauthorizeUser();
                         closeSelf();
                     }
                 })
                 .catch(function (error) {
                     console.log(error);
+                    unauthorizeUser();
                     closeSelf();
                 });
         }
