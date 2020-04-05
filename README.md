@@ -29,7 +29,10 @@
                 "discord_id": "662509114353516554",
                 "avatar_url": "https://cdn.discordapp.com/avatars/...png"
             }
-        }
+        },
+        "customs": [
+            {"keyword": "keyword1", "value": "value1 },
+        ]
     }
  }
  ```

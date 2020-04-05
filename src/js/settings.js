@@ -4,16 +4,6 @@ docReady(function () {
     // checkAuthAndExist();
     tabSelected(document.querySelector('.tabs .tab'));
 
-    document.getElementById('btn-save-profile').addEventListener('click', function (e) {
-        console.log('[Save Profile]');
-        e.preventDefault();
-        if (validateForm() === false) {
-            alert('Please fill all the fields!')
-            return;
-        }
-        const formData = getFormData();
-        saveProfile(formData);
-    });
 
     document.getElementById('profile_names').addEventListener('change', function () {
         const value = this.value;
@@ -38,6 +28,62 @@ docReady(function () {
             tabSelected(this);
         });
     })
+
+    // profile settings
+    document.getElementById('btn-save-profile').addEventListener('click', function (e) {
+        e.preventDefault();
+        if (validateForm() === false) {
+            alert('Please fill all the fields!')
+            return;
+        }
+        const formData = getFormData();
+        saveProfile(formData);
+    });
+
+    document.getElementById('btn-remove-profile').addEventListener('click', function(e) {
+        e.preventDefault();
+        chrome.storage.local.get(['data'], function(store) {
+            if (store && store.data && store.data.profiles) {
+                const current_profile = document.getElementById('profile_names').value;
+                let newProfiles = [];
+                store.data.profiles.forEach(function(profile) {
+                    if (profile.name != current_profile) {
+                        newProfiles.push(profile);
+                    }
+                    store.data.profile = newProfiles.length && newProfiles.length > 0 ? newProfiles[0] : null;
+                    store.data.profiles = newProfiles;
+                    chrome.storage.local.set({data: store.data}, function() {
+                        showAlertModal('Data has been removed successfully!');
+                        loadData();
+                    })
+                })
+            }
+        })
+    })
+
+    document.getElementById('btn-new-profile').addEventListener('click', function() {
+        document.getElementById('profile_names').value = -1;
+        const form = document.getElementById('profile_setting');
+        form.querySelectorAll('input').forEach(function(input) {
+            input.value = '';
+        })
+    })
+
+    // add custom keywords
+    document.getElementById('add-custom').addEventListener('click', function () {
+        addCustomItem()
+    })
+
+    document.querySelectorAll('.remove-custom').forEach(function(removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            console.log('wanna remove?');
+            this.parentNode.remove();
+        })
+    })
+
+    document.getElementById('save-customs').addEventListener('click', function() {
+        saveCustomKeywords();
+    })
 })
 
 function loadData() {
@@ -48,6 +94,11 @@ function loadData() {
             fillProfilesSelect(result.data);
             if (result.data.activation) {
                 fillActivationSection(result.data.activation);
+            }
+            if (result.data.customs) {
+                result.data.customs.forEach(function(custom) {
+                    addCustomItem(custom.keyword, custom.value);
+                })
             }
         }
     })
@@ -78,7 +129,7 @@ function saveProfile(profile) {
         data.mode = '1';
 
         chrome.storage.local.set({ data: data }, function () {
-            alert('Data has been successfully saved!');
+            showAlertModal('Data has been successfully saved!');
             loadData();
         });
     });
@@ -143,9 +194,9 @@ function fillProfilesSelect(data) {
     }
     const select = document.getElementById('profile_names');
     if (data.profiles.length === 0) {
-        optionsHTML = `<option disabled>No profiles</option>`;
+        optionsHTML = `<option value="-1">No profiles</option>`;
     } else {
-        optionsHTML = `<option disabled>Select profile</option>` + optionsHTML;
+        optionsHTML = `<option value="-1">Select profile</option>` + optionsHTML;
     }
     select.innerHTML = optionsHTML;
 }
@@ -226,16 +277,60 @@ function tabSelected(elem) {
     // document.getElementById('header').innerText = elem.innerText;
 
     // tab panes
-    document.querySelectorAll('.tab-pane').forEach(function(tabPane) {
+    document.querySelectorAll('.tab-pane').forEach(function (tabPane) {
         tabPane.style.display = 'none';
     })
     document.getElementById(`${targetId}`).style.display = 'block';
 }
 
 function fillActivationSection(activation) {
-    document.getElementById('actv_key').value       = activation.key
-    document.getElementById('actv_hwid').value      = activation.activation.hwid;
-    document.getElementById('actv_device').value    = activation.activation.device_name;
-    document.getElementById('actv_token').value     = activation.activation_token;
+    document.getElementById('actv_key').value = activation.key
+    document.getElementById('actv_hwid').value = activation.activation.hwid;
+    document.getElementById('actv_device').value = activation.activation.device_name;
+    document.getElementById('actv_token').value = activation.activation_token;
 }
 
+function addCustomItem(keyword = '', value = '') {
+    const container = document.getElementById('custom-container');
+    let item = document.createElement('div');
+    item.classList.add('form-group')
+    item.classList.add('flex');
+    item.classList.add('custom-item');
+    item.innerHTML = `
+        <input class="form-control" placeholder="Keyword" />
+        <input class="form-control" placeholder="Answer" />
+        <button class="remove-custom" title="Remove">
+            <svg width="14" aria-hidden="true" focusable="false" data-prefix="far" data-icon="trash-alt" class="svg-inline--fa fa-trash-alt fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M268 416h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12zM432 80h-82.41l-34-56.7A48 48 0 0 0 274.41 0H173.59a48 48 0 0 0-41.16 23.3L98.41 80H16A16 16 0 0 0 0 96v16a16 16 0 0 0 16 16h16v336a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128h16a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16zM171.84 50.91A6 6 0 0 1 177 48h94a6 6 0 0 1 5.15 2.91L293.61 80H154.39zM368 464H80V128h288zm-212-48h24a12 12 0 0 0 12-12V188a12 12 0 0 0-12-12h-24a12 12 0 0 0-12 12v216a12 12 0 0 0 12 12z" fill="#fff"></path></svg>
+        </button>
+    `;
+    if (!!keyword) {
+        item.querySelectorAll('input')[0].value = keyword;
+    }
+    if (!!value) {
+        item.querySelectorAll('input')[1].value = value;
+    }
+    item.querySelector('.remove-custom').addEventListener('click', function() {
+        item.remove();
+    })
+    container.append(item);
+}
+
+function saveCustomKeywords() {
+    let customs = [];
+    const items = document.querySelectorAll('.custom-item');
+    items.forEach(function(item) {
+        const keyword = item.querySelectorAll('input')[0].value;
+        const value = item.querySelectorAll('input')[1].value;
+        if (keyword && value) {
+            customs.push({keyword: keyword, value: value});
+        }
+    })
+    chrome.storage.local.get(['data'], function(store) {
+        if (store && store.data) {
+            store.data.customs = customs;
+            chrome.storage.local.set({ data: store.data }, function() {
+                showAlertModal('Data has been saved successfully!');
+            })
+        }
+    })
+}

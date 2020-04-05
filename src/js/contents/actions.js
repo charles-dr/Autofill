@@ -192,8 +192,11 @@ function isElementInViewport(elem) {
 }
 
 function isParentFormTransparent(elem) {
-	if (elem.form.style.opacity) console.log('opacity', elem.form.style.opacity)
-	return elem.form.style.opacity === 0 ? true : false;
+	if (elem.form && elem.form.style.opacity) {
+		console.log('opacity', elem.form.style.opacity)
+		return elem.form.style.opacity === 0 ? true : false;
+	}
+	return false;
 }
 
 /** accepts excluded sites list paramter **/
@@ -395,8 +398,8 @@ function isDefaultMode(mode) {
 
 // start point
 chrome.extension.sendMessage({msgType: "data"}, result => {
-	console.log('[starting] ?', result)
-	if (result.data && result.data.activation && result.data.profile && isIncludedSite(result.data.excludedSites)) {
+	console.log('[starting] ?', result) //&& result.data.activation
+	if (result.data  && result.data.profile && isIncludedSite(result.data.excludedSites)) {
 		
 		setInterval(function() {
 				autofill_count ++;

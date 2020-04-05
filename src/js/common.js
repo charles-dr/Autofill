@@ -10,8 +10,8 @@ function getGlobalEMerchant() {
     if (html && html.innerHTML) {
         var m = html.innerHTML.match(GLOBAL_E_GET_MERCHANT_REGEX);
         if (m) {
-            debugger;
-            console.log('match', m);
+            // debugger;
+            // console.log('match', m);
             return m[1];
         }
     }
@@ -48,47 +48,47 @@ function docReady(fn) {
 }
 
 function ajaxPost(url, data, headers) {
-	var xhttp = new XMLHttpRequest();
-	return new Promise((resolve, reject) => {
-		xhttp.onreadystatechange = function () {
-			if (this.readyState == 4 && this.status == 200) {
-				console.log(xhttp.responseText);
-				resolve(JSON.parse(xhttp.responseText));
-			} else if (this.status == 404) {
+    var xhttp = new XMLHttpRequest();
+    return new Promise((resolve, reject) => {
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(xhttp.responseText);
+                resolve(JSON.parse(xhttp.responseText));
+            } else if (this.status == 404) {
                 reject(404);
             } else if (this.status >= 400) {
                 reject(400);
             }
-		};
-		xhttp.open("POST", url, true);
-		for (let key in headers) {
-			xhttp.setRequestHeader(key, headers[key]);
-		}
+        };
+        xhttp.open("POST", url, true);
+        for (let key in headers) {
+            xhttp.setRequestHeader(key, headers[key]);
+        }
         xhttp.setRequestHeader('Authorization', `Bearer ${API_KEY}`);
-		xhttp.send(JSON.stringify(data));
-	})
+        xhttp.send(JSON.stringify(data));
+    })
 }
 
 function ajaxGet(url, headers) {
-	var xhttp = new XMLHttpRequest();
-	return new Promise((resolve, reject) => {
-		xhttp.onreadystatechange = function () {
-			if (this.readyState == 4 && this.status == 200) {
-				// console.log(xhttp.responseText);
-				resolve(JSON.parse(xhttp.responseText));
-			} else if (this.status == 404) {
+    var xhttp = new XMLHttpRequest();
+    return new Promise((resolve, reject) => {
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                // console.log(xhttp.responseText);
+                resolve(JSON.parse(xhttp.responseText));
+            } else if (this.status == 404) {
                 reject(404);
             } else if (this.status >= 400) {
                 reject(400);
             }
-		};
-		xhttp.open("GET", url, true);
-		for (let key in headers) {
-			xhttp.setRequestHeader(key, headers[key]);
+        };
+        xhttp.open("GET", url, true);
+        for (let key in headers) {
+            xhttp.setRequestHeader(key, headers[key]);
         }
         xhttp.setRequestHeader('Authorization', `Bearer ${API_KEY}`);
-		xhttp.send();
-	})
+        xhttp.send();
+    })
 }
 
 function authURL(url) {
@@ -96,10 +96,11 @@ function authURL(url) {
 }
 
 function storeActivationInfo(info, callback = null) {
-    chrome.storage.local.get(["data"], function (store) { console.log('[Activation] loaded', store);
+    chrome.storage.local.get(["data"], function (store) {
+        console.log('[Activation] loaded', store);
         if (store && store.data) {
-            store.data.activation = info; 
-            chrome.storage.local.set({data: store.data}, function() {
+            store.data.activation = info;
+            chrome.storage.local.set({ data: store.data }, function () {
                 console.log('[Activation] saved', store);
                 if (callback && typeof callback === 'function') callback();
             });
@@ -108,10 +109,10 @@ function storeActivationInfo(info, callback = null) {
 }
 
 function unauthorizeUser(callback = null) {
-    chrome.storage.local.get(['data'], function(store) { 
+    chrome.storage.local.get(['data'], function (store) {
         if (store && store.data) {
             store.data.activation = null;
-            chrome.storage.local.set({data: store.data}), function() {
+            chrome.storage.local.set({ data: store.data }), function () {
                 console.log('Unauthorized!');
                 if (callback && typeof callback === 'function') {
                     callback();
@@ -121,3 +122,26 @@ function unauthorizeUser(callback = null) {
     });
 }
 
+function showAlertModal(content, title, showOk = true, showCancel = false) {
+    if (!!title) {
+        document.querySelector('.modal .modal-header').classList.remove('hidden');
+        document.querySelector('.modal .modal-header').innerText = title;
+    } else {
+        document.querySelector('.modal .modal-header').classList.add('hidden');
+    }
+
+    document.querySelector('.modal .modal-body').innerText = content;
+
+    if (showOk) {
+        document.querySelector('.modal .modal-ok').classList.remove('hidden');
+    } else {
+        document.querySelector('.modal .modal-ok').classList.add('hidden');
+    }
+
+    if (showCancel) {
+        document.querySelector('.modal .modal-cancel').classList.remove('hidden');
+    } else {
+        document.querySelector('.modal .modal-cancel').classList.add('hidden');
+    }
+    showModal();
+}

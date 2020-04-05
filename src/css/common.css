@@ -8,6 +8,8 @@
     --fg-label: #7191B9;
     --fg-input: #9aa5cc;
     --fg-button: #FFE58A;
+
+    --z-modal: 100;
 }
 
 body {
@@ -28,6 +30,10 @@ body {
     vertical-align: middle;
 }
 
+.w-half { width: 50%; }
+.blur-1 { filter: blur(1px); }
+.blur-2 { filter: blur(2px); }
+.hidden { display: none; }
 .header {
     background: var(--bg-head);
     font-size: 24px;
