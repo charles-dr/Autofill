@@ -1,9 +1,8 @@
 
 docReady(function () {
     loadData();
-    // checkAuthAndExist();
+    checkAuthAndExist();
     tabSelected(document.querySelector('.tabs .tab'));
-
 
     document.getElementById('profile_names').addEventListener('change', function () {
         const value = this.value;
@@ -238,6 +237,8 @@ function filterProfile(profiles) {
 function checkAuthAndExist() {
     chrome.storage.local.get(["data"], function (store) {
         if (store && store.data && store.data.activation) {
+            if (APP_SETTINGS.auth_recheck === false) return true;
+            
             const token = store.data.activation.activation_token;
             ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
                 .then(function (res) {

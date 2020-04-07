@@ -12,8 +12,8 @@ var autofill_count = 0;
 
 // start point
 chrome.extension.sendMessage({ msgType: "data" }, result => {
-	// console.log('[starting] ?', result) //&& result.data.activation
-	if (result.data && result.data.profile && isIncludedSite(result.data.excludedSites)) {
+	// console.log('[starting] ?', result) //
+	if (result.data && result.data.activation && result.data.profile && isIncludedSite(result.data.excludedSites)) {
 
 		setInterval(function () {
 			autofill_count++;

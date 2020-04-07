@@ -1,8 +1,12 @@
 
 
-const API_ENDPOINT = "https://www.restockintel.com/api/v1";
-const API_KEY = 'ak_ihs5TCJ8TX6FXCrxMf5d';
-var EVENT_PARAMS = { bubbles: true };
+const APP_SETTINGS = {
+	auth_recheck: false,
+	auth_endpoint:  "https://www.restockintel.com/api/v1",
+	auth_key: 'ak_ihs5TCJ8TX6FXCrxMf5d'
+}
+
+const EVENT_PARAMS = { bubbles: true };
 const GLOBAL_E_GET_MERCHANT_REGEX = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
 var mutationObserver = new MutationObserver(mutationCallback);
 
@@ -33,7 +37,7 @@ function ajaxPost(url, data, headers) {
         for (let key in headers) {
             xhttp.setRequestHeader(key, headers[key]);
         }
-        xhttp.setRequestHeader('Authorization', `Bearer ${API_KEY}`);
+        xhttp.setRequestHeader('Authorization', `Bearer ${APP_SETTINGS.auth_key}`);
         xhttp.send(JSON.stringify(data));
     })
 }
@@ -55,7 +59,7 @@ function ajaxGet(url, headers) {
         for (let key in headers) {
             xhttp.setRequestHeader(key, headers[key]);
         }
-        xhttp.setRequestHeader('Authorization', `Bearer ${API_KEY}`);
+        xhttp.setRequestHeader('Authorization', `Bearer ${APP_SETTINGS.auth_key}`);
         xhttp.send();
     })
 }
@@ -74,7 +78,7 @@ function getGlobalEMerchant() {
 }
 
 function authURL(url) {
-    return API_ENDPOINT + url;
+    return APP_SETTINGS.auth_endpoint + url;
 }
 
 function storeActivationInfo(info, callback = null) {

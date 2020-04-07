@@ -86,10 +86,13 @@ function showActivateForm() {
 
 // check if user already authorized. if yes, open settings.html
 function checkActivation() {
-    return chrome.tabs.create({url: 'src/settings.html'});
     chrome.storage.local.get(["data"], function (store) {
         console.log(store);
         if (store && store.data && store.data.activation) {
+            if (APP_SETTINGS.auth_recheck === false) {
+                return chrome.tabs.create({url: 'src/settings.html'});
+            }
+
             const token = store.data.activation.activation_token;
             document.querySelector('#btn-authorize img').style.display = 'inherit';
             document.querySelector('#btn-authorize img').attributes.disabled = 'true';
