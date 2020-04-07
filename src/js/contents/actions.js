@@ -12,7 +12,7 @@ var autofill_count = 0;
 
 // start point
 chrome.extension.sendMessage({ msgType: "data" }, result => {
-	console.log('[starting] ?', result) // && result.data.activation
+	// console.log('[starting] ?', result) // && result.data.activation
 
 	if (result.updated && result.data && result.data.profile && isIncludedSite(result.data.excludedSites)) {
 
@@ -20,7 +20,7 @@ chrome.extension.sendMessage({ msgType: "data" }, result => {
 			autofill_count++;
 			processAIO(result);
 		},
-			DELAY * 20
+			DELAY * 10
 		);
 		setTimeout(function () {
 			setInterval(function () {

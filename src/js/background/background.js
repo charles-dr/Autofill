@@ -55,7 +55,6 @@ chrome.runtime.onInstalled.addListener(function () {
 	});
 });
 
-
 function ajaxTest(url, data, headers) {
 	var xhttp = new XMLHttpRequest();
 	return new Promise((resolve, reject) => {
@@ -81,7 +80,7 @@ function reloadData() {
 		if (res && res.data) {
 			result = res.data;
 			data_updated = true;
-			console.log('[reload Data]', result, data_updated);
+			// console.log('[reload Data]', result, data_updated);
 		}
 	})
 }
@@ -92,7 +91,7 @@ function getWebhook() {
 }
 
 function processItems(request, sender) {
-	console.log('[bk] - processItems', request, sender);
+	// console.log('[bk] - processItems', request, sender);
 	if (request.url) {
 		var m = sender.url.match(BIGCARTEL_URL_REGEX);
 		if (m) {
