@@ -1,79 +1,100 @@
 /*
 
-Source: https://cs.chromium.org/chromium/src/components/autofill/core/common/autofill_REGEX_NAME_constants.cc?g=0
+Source: https://cs.chromium.org/chromium/src/components/autofill/core/common/autofill_PATTERN_constants.cc?g=0
 
 */
-const REGEX_NAME_FULL_NAME = new RegExp(
+const PATTERN_FULL_NAME = new RegExp(
     "^name|full.?name|your.?name|customer.?name|bill.?name|ship.?name"
     + "|name.*first.*last|firstandlastname" , "i");
-const REGEX_NAME_FIRST_NAME = new RegExp(
+const PATTERN_FIRST_NAME = new RegExp(
 	"first.*name|initials|fname|first$|given.*name", "i");
-const REGEX_NAME_LAST_NAME = new RegExp(
+const PATTERN_LAST_NAME = new RegExp(
 	"last.*name|lname|surname|last$|secondname|family.*name", "i");
-const REGEX_NAME_ADDRESS_1 = new RegExp(
+const PATTERN_ADDRESS_1 = new RegExp(
     "^address$|address[_-]?line(one)?|address1|addr1|street", "i");
-const REGEX_NAME_ADDRESS_2 = new RegExp(
+const PATTERN_ADDRESS_2 = new RegExp(
 	"address[_-]?line(2|two)|address.?2|addr2|street.?(?:#|no|num|nr)|suite|unit", "i");
-const REGEX_NAME_CITY = new RegExp(
+const PATTERN_CITY = new RegExp(
 	"city|town", "i");
-const REGEX_NAME_STATE = new RegExp(
+const PATTERN_STATE = new RegExp(
     "(?<!(united|hist|history).?)state|county|region|province", "i");
-const REGEX_NAME_COUNTRY = new RegExp(
+const PATTERN_COUNTRY = new RegExp(
     "country|countries", "i");
-const REGEX_NAME_ZIP = new RegExp(
+const PATTERN_ZIP = new RegExp(
     "zip|postal|post.*code|pcode", "i");
-const REGEX_NAME_EMAIL = new RegExp(
+const PATTERN_EMAIL = new RegExp(
 	"e.?mail|google\\s+account|gmail", "i");
-const REGEX_NAME_PHONE = new RegExp(
+const PATTERN_PHONE = new RegExp(
     "phone|mobile|contact.?number|tel", "i");
-const REGEX_NAME_CARD_NAME = new RegExp(
+const PATTERN_CARD_NAME = new RegExp(
     "card.?(?:holder|owner)|name.*(\\b)?on(\\b)?.*card", "i");
-const REGEX_NAME_CARD_NUMBER = new RegExp(
+const PATTERN_CARD_NUMBER = new RegExp(
     "(add)?(?:card|cc|acct).?(?:number|#|no|num|field)|carn|credit.*?card.*?cnb", "i");
-const REGEX_NAME_CARD_CVV = new RegExp(
+const PATTERN_CARD_CVV = new RegExp(
     "verification|card.?identification|security.?code|card.?code"
     + "|security.?value"
     + "|security.?number|card.?pin|c-v-v"
     + "|(cvn|cvv|cvc|csc|cvd|cid|ccv)(field)?"
     + "|\\bcid\\b", "i");
-const REGEX_NAME_CARD_EXP_MONTH = new RegExp(
+const PATTERN_CARD_EXP_MONTH = new RegExp(
     "exp.*mo|ccmonth|card.?month|addmonth", "i");
-const REGEX_NAME_CARD_EXP_YEAR = new RegExp(
+const PATTERN_CARD_EXP_YEAR = new RegExp(
     "(?:exp|payment|card).*(?:year|yr)", "i");
-const REGEX_NAME_CARD_TYPE = new RegExp(
+const PATTERN_CARD_TYPE = new RegExp(
     "(credit)?card.*type", "i");
-const REGEX_NAME_CARD_EXP_DATE = new RegExp(
+const PATTERN_CARD_EXP_DATE = new RegExp(
     "expir|exp.*date|^expfield$", "i");
-const REGEX_NAME_CARD_EXP_DATE_MMYY = new RegExp(
+const PATTERN_CARD_EXP_DATE_MMYY = new RegExp(
     "^\\s*MM\\s*/\\s*YY\\s*$"
 , "i");
-const REGEX_NAME_CARD_EXP_DATE_MM = new RegExp(
+const PATTERN_CARD_EXP_DATE_MM = new RegExp(
     "^\\s*MM\\s*$"
 , "i");
-const REGEX_NAME_CARD_EXP_DATE_YY = new RegExp(
+const PATTERN_CARD_EXP_DATE_YY = new RegExp(
     "^\\s*YY\\s*$"
 , "i");
-const REGEX_NAME_CARD_EXP_DATE_YYYY = new RegExp(
+const PATTERN_CARD_EXP_DATE_YYYY = new RegExp(
     "^\\s*YYYY\\s*$"
 , "i");
-const REGEX_NAME_DISCORD_TAG = new RegExp(
+const PATTERN_DISCORD_TAG = new RegExp(
     "discord.*?(tag)?"
 , "i");
-const REGEX_NAME_TWITTER_HANDLE = new RegExp(
+const PATTERN_TWITTER_HANDLE = new RegExp(
     "twitter.*?handle"
 , "i");
-const REGEX_NAME_DISCOUNT_CODE = new RegExp(
+const PATTERN_DISCOUNT_CODE = new RegExp(
     "(?:discount|coupon|promo).*?code"
 , "i");
-const REGEX_NAME_CHECKBOX = new RegExp(
+const PATTERN_CHECKBOX = new RegExp(
     "(order)?.*?terms|(?:agree|consent).*?(checkbox)?"
 , "i");
-const REGEX_NAME_DIFFERENT_BILLING_ADDRESS = new RegExp(
+const PATTERN_DIFFERENT_BILLING_ADDRESS = new RegExp(
     "different.*?billing.*?address"
 , "i");
 var REGEX_MATH = new RegExp(
     "[\\d\\.\\[\\]\\(\\)\\{\\}\\-\\+\\*\\/x\\s\\?\\=]+"
 , "i");
-const REGEX_NAME_TO_CHECKOUT = new RegExp(
+const PATTERN_TO_CHECKOUT = new RegExp(
     "continue.*?shipping|continue.*?button|pay.*?|donat.*?|complete.*?order|continue.*?payment"
 , "i");
+
+
+var ADIDAS_YS_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?(?:adidas|yeezysupply).+?/(?:delivery|payment|COShipping-Show|COSummary2-Start).*", "i");
+var OFFWHITE_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?off---white.com/.+?/checkout/payment.*", "i");
+var FOOTSITE_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?(?:footlocker|champssports|footaction|eastbay).+?/checkout.*", "i");
+var FOOTSITE_EU_REGEX = new RegExp("^https?://(?:www.)?(?:footlocker).+?/INTERSHOP.*", "i");
+var GLOBAL_E_PAGE_REGEX = new RegExp("^https?://webservices.global-e.com/Checkout/v2/.*", "i");
+var GOOGLE_FORM_REGEX = new RegExp("^https?://docs.google.com/forms/.*?/viewform", "i");
+var ADD_LISTENER = "addListener";
+var DELAY = 25;
+var CARD_TYPE_MAP = new Map(); /* Thanks to https://gist.github.com/genecyber/5a13ba6a553e3995bbcc9cc2e61075fa */
+var AUTO_FILL_ICON = "https://i.imgur.com/dI7i9Wl.png";
+
+CARD_TYPE_MAP.set(new RegExp("^4"), "Visa");
+CARD_TYPE_MAP.set(new RegExp("^5[1-5]"), "Mastercard");
+CARD_TYPE_MAP.set(new RegExp("^3[47]"), "American Express");
+CARD_TYPE_MAP.set(new RegExp("^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)"), "Discover");
+CARD_TYPE_MAP.set(new RegExp("^36"), "Diners");
+CARD_TYPE_MAP.set(new RegExp("^30[0-5]"), "Diners - Carte Blanche");
+CARD_TYPE_MAP.set(new RegExp("^35(2[89]|[3-8][0-9])"), "JCB");
+CARD_TYPE_MAP.set(new RegExp("^(4026|417500|4508|4844|491(3|7))"), "Visa Electron");

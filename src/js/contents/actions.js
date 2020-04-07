@@ -1,130 +1,15 @@
-var ADIDAS_YS_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?(?:adidas|yeezysupply).+?/(?:delivery|payment|COShipping-Show|COSummary2-Start).*", "i");
-var OFFWHITE_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?off---white.com/.+?/checkout/payment.*", "i");
-var FOOTSITE_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?(?:footlocker|champssports|footaction|eastbay).+?/checkout.*", "i");
-var FOOTSITE_EU_REGEX = new RegExp("^https?://(?:www.)?(?:footlocker).+?/INTERSHOP.*", "i");
-var GLOBAL_E_PAGE_REGEX = new RegExp("^https?://webservices.global-e.com/Checkout/v2/.*", "i");
-var GOOGLE_FORM_REGEX = new RegExp("^https?://docs.google.com/forms/.*?/viewform", "i");
-var ADD_LISTENER = "addListener";
+
 var mutationObserver = new MutationObserver(mutationCallback);
-var DELAY = 25;
-var CARD_TYPE_MAP = new Map(); /* Thanks to https://gist.github.com/genecyber/5a13ba6a553e3995bbcc9cc2e61075fa */
-var AUTO_FILL_ICON = "https://i.imgur.com/dI7i9Wl.png";
-
-CARD_TYPE_MAP.set(new RegExp("^4"), "Visa");
-CARD_TYPE_MAP.set(new RegExp("^5[1-5]"), "Mastercard");
-CARD_TYPE_MAP.set(new RegExp("^3[47]"), "American Express");
-CARD_TYPE_MAP.set(new RegExp("^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)"), "Discover");
-CARD_TYPE_MAP.set(new RegExp("^36"), "Diners");
-CARD_TYPE_MAP.set(new RegExp("^30[0-5]"), "Diners - Carte Blanche");
-CARD_TYPE_MAP.set(new RegExp("^35(2[89]|[3-8][0-9])"), "JCB");
-CARD_TYPE_MAP.set(new RegExp("^(4026|417500|4508|4844|491(3|7))"), "Visa Electron");
-
+var ADD_LISTENER = "addListener";
 var booleanMapDefault = new Map();
 booleanMapDefault.set(ADD_LISTENER, true);
 
-var href = getVal(window.location.href);
-var ref = isIframe() && document.referrer ? getVal(document.referrer) : getVal(document.location.href);
+var href = getValue(window.location.href);
+var ref = isIframe() && document.referrer ? getValue(document.referrer) : getValue(document.location.href);
 var items = [];
 var elements = [];
-
 var autofill_count = 0;
 
-
-function dispatchInputEvent(elem) {
-	if (elem) {
-		dispatchEvent(elem, EVENT_PARAMS, "input");
-	}
-}
-
-function dispatchKeydownEvent(elem) {
-	if (elem) {
-		dispatchEvent(elem, EVENT_PARAMS, "keydown");
-	}
-}
-
-function dispatchClickEvent(elem) {
-	if (elem) {
-		// dispatchEvent(elem, EVENT_PARAMS, "mousedown");
-		// elem.dispatchEvent(new Event('mousedown'));
-		const attrName = 'auto-checkout-done';
-		// if (elem.attributes[attrName] === undefined) {
-		elem.click(); //console.log('[dispatched]', elem);
-		elem.attributes[attrName] = 'true';
-		// }
-
-		// var e = document.createEvent('HTMLEvents');
-		// e.initEvent('mousedown', false, true);
-		// elem.dispatchEvent(e);
-	}
-}
-
-function setSelectValue(elem, val, isNumeric) {
-	if (elem && elem.options && val) {
-		for (var val of val.split("/")) {
-			for (var opt of elem.options) {
-				value = getStringOrNumeric(val, isNumeric);
-				if (getStringOrNumeric(opt.value, isNumeric) === value || getStringOrNumeric(opt.innerText, isNumeric) === value
-					|| (opt.getAttribute("data-code") && getStringOrNumeric(opt.getAttribute("data-code"), isNumeric) === value)) {
-					if (opt.selected || elem.value === opt.value || elem.getAttribute("af")) {
-						elem.setAttribute("af", true);
-						break;
-					} else {
-						opt.selected = true;
-						elem.value = opt.value;
-						elem.setAttribute("af", true);
-						dispatchChangeEvent(elem);
-						return true;
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-function setValue(elem, val) {
-	if (elem) {
-		elem.value = val;
-		return true;
-	}
-	return false;
-}
-
-function getValue(elem) {
-	if (elem) {
-		return elem.value.trim();
-	}
-
-	return "";
-}
-
-function getValNumeric(value) {
-	if (value) {
-		return parseInt(value);
-	}
-	return NaN;
-}
-
-function getStringOrNumeric(value, isNumeric) {
-	if (isNumeric) {
-		return getValNumeric(value);
-	}
-
-	return getVal(value);
-}
-
-function focusElement(elem) {
-	if (elem) {
-		elem.focus();
-	}
-}
-
-function blurElement(elem) {
-	if (elem) {
-		elem.blur();
-	}
-}
 
 function processInputWithDispatchEvent(elem, value, mode) {
 	try {
@@ -211,7 +96,7 @@ function isIncludedSite(excludedSites) {
 		if (sites && sites.length > 0) {
 			var referrer = isIframe() && document.referrer ? document.referrer.toLowerCase() : document.location.href;
 			for (var site of sites) {
-				site = getVal(site);
+				site = getValue(site);
 				if (site === "") {
 					continue;
 				}
@@ -275,7 +160,7 @@ function getSelectName(input) {
 		}
 	}
 
-	var name = getVal(input.name);
+	var name = getValue(input.name);
 
 	if (name) {
 		return name;
@@ -301,38 +186,38 @@ function processAcCard(ac, input, card, mode) {
 }
 
 function processRegexNameAndEmail(name, input, result, address, mode) {
-	return processName(REGEX_NAME_FULL_NAME, name, input, address.fName + " " + address.lName, mode) ||
-		processName(REGEX_NAME_FIRST_NAME, name, input, address.fName, mode) ||
-		processName(REGEX_NAME_LAST_NAME, name, input, address.lName, mode) ||
-		processName(REGEX_NAME_EMAIL, name, input, result.data.profile.email, mode); 
+	return processName(PATTERN_FULL_NAME, name, input, address.fName + " " + address.lName, mode) ||
+		processName(PATTERN_FIRST_NAME, name, input, address.fName, mode) ||
+		processName(PATTERN_LAST_NAME, name, input, address.lName, mode) ||
+		processName(PATTERN_EMAIL, name, input, result.data.profile.email, mode); 
 		// ||
-		// processName(REGEX_NAME_CARD_NAME, name, input, address.fName + " " + address.lName, mode) ||
-		// processName(REGEX_NAME_DISCORD_TAG, name, input, result.data.discord, mode) ||
-		// processName(REGEX_NAME_TWITTER_HANDLE, name, input, result.data.twitter, mode);
+		// processName(PATTERN_CARD_NAME, name, input, address.fName + " " + address.lName, mode) ||
+		// processName(PATTERN_DISCORD_TAG, name, input, result.data.discord, mode) ||
+		// processName(PATTERN_TWITTER_HANDLE, name, input, result.data.twitter, mode);
 }
 
 function processRegexCard(name, input, card, mode) {
-	return processName(REGEX_NAME_CARD_NUMBER, name, input, card.number, mode) ||
-		processName(REGEX_NAME_CARD_EXP_MONTH, name, input, card.expMonth, mode) ||
-		processName(REGEX_NAME_CARD_EXP_YEAR, name, input, card.expYear, mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE, name, input, card.expMonth + card.expYear.substring(2, 4), mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE_MMYY, name, input, card.expMonth + "/" + card.expYear.substring(2, 4), mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE_MM, name, input, card.expMonth, mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE_YY, name, input, card.expYear.substring(2, 4), mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE_YYYY, name, input, card.expYear, mode) ||
-		processName(REGEX_NAME_CARD_CVV, name, input, card.cvv, mode);
+	return processName(PATTERN_CARD_NUMBER, name, input, card.number, mode) ||
+		processName(PATTERN_CARD_EXP_MONTH, name, input, card.expMonth, mode) ||
+		processName(PATTERN_CARD_EXP_YEAR, name, input, card.expYear, mode) ||
+		processName(PATTERN_CARD_EXP_DATE, name, input, card.expMonth + card.expYear.substring(2, 4), mode) ||
+		processName(PATTERN_CARD_EXP_DATE_MMYY, name, input, card.expMonth + "/" + card.expYear.substring(2, 4), mode) ||
+		processName(PATTERN_CARD_EXP_DATE_MM, name, input, card.expMonth, mode) ||
+		processName(PATTERN_CARD_EXP_DATE_YY, name, input, card.expYear.substring(2, 4), mode) ||
+		processName(PATTERN_CARD_EXP_DATE_YYYY, name, input, card.expYear, mode) ||
+		processName(PATTERN_CARD_CVV, name, input, card.cvv, mode);
 }
 
 function processRegexCheckbox(name, input) {
-	return processCheckboxOrRadio(REGEX_NAME_CHECKBOX, name, input);
+	return processCheckboxOrRadio(PATTERN_CHECKBOX, name, input);
 }
 
 function processCheckboxOrRadio(regex, name, input) {
-	if (input && (getVal(input.type) === "checkbox" || getVal(input.type) === "radio")) {
+	if (input && (getValue(input.type) === "checkbox" || getValue(input.type) === "radio")) {
 		if (input.checked) {
 			return true;
 		} else if (name.match(regex) || getAttr(input, "data-auto-id").match(regex)) {
-			if (input.nextElementSibling && getVal(input.nextElementSibling.tagName) === "ins") {
+			if (input.nextElementSibling && getValue(input.nextElementSibling.tagName) === "ins") {
 				input.nextElementSibling.click();
 			} else {
 				input.click();
@@ -360,19 +245,19 @@ function getLabelText(input) {
 	if (id) {
 		var label = document.querySelector("label[for='" + id + "']");
 		if (label) {
-			return getVal(label.innerText);
+			return getValue(label.innerText);
 		}
 	}
 
 	var parent = input.parentElement;
 	if (parent) {
 		if (parent.tagName.toLowerCase() === "label") {
-			return getVal(parent.innerText);
+			return getValue(parent.innerText);
 		}
 
 		var previous = parent.previousElementSibling;
 		if (previous && previous.tagName.toLowerCase() === "label") {
-			return getVal(previous.innerText);
+			return getValue(previous.innerText);
 		}
 	}
 
@@ -391,7 +276,7 @@ function getAddress(name, result) {
 function getAttr(input, attr) {
 	var attribute = "";
 	if (input) {
-		attribute = getVal(input.getAttribute(attr));
+		attribute = getValue(input.getAttribute(attr));
 	}
 
 	return attribute;
@@ -441,7 +326,7 @@ function attemptCheckout(elem, mode) {
 	const strText = elem.innerText || '';
 	const strValue = elem.value || '';
 
-	let regx = REGEX_NAME_TO_CHECKOUT;
+	let regx = PATTERN_TO_CHECKOUT;
 	if (!isDefaultMode(mode)) { return; }
 	if (!validElement(elem)) return;
 
@@ -498,18 +383,18 @@ function processRegex(name, input, result) {
 	var mode = getMode(result.data.mode);
 
 	return processRegexNameAndEmail(name, input, result, address, mode) ||
-		processName(REGEX_NAME_ADDRESS_2, name, input, address.address2, mode) ||
-		processName(REGEX_NAME_ADDRESS_1, name, input, address.address1, mode) ||
-		processName(REGEX_NAME_CITY, name, input, address.city, mode) ||
-		processName(REGEX_NAME_STATE, name, input, address.province ? address.province.split("/")[0] : "", mode) ||
-		processName(REGEX_NAME_ZIP, name, input, address.zip, mode) ||
-		processName(REGEX_NAME_PHONE, name, input, address.phone, mode) ||
-		processName(REGEX_NAME_DISCOUNT_CODE, name, input, result.data.discount, mode) ||
+		processName(PATTERN_ADDRESS_2, name, input, address.address2, mode) ||
+		processName(PATTERN_ADDRESS_1, name, input, address.address1, mode) ||
+		processName(PATTERN_CITY, name, input, address.city, mode) ||
+		processName(PATTERN_STATE, name, input, address.province ? address.province.split("/")[0] : "", mode) ||
+		processName(PATTERN_ZIP, name, input, address.zip, mode) ||
+		processName(PATTERN_PHONE, name, input, address.phone, mode) ||
+		processName(PATTERN_DISCOUNT_CODE, name, input, result.data.discount, mode) ||
 		processRegexCard(name, input, result.data.profile.card, mode) ||
 		processRegexCheckbox(name, input) ||
 		processRegexCard(name, input, result.data.profile.card, mode) ||
 		processRegexDIY(name, input, result, mode) ||
-		(isShopifyCheckoutPages() && result.data.profile.ship && processCheckboxOrRadio(REGEX_NAME_DIFFERENT_BILLING_ADDRESS, name, input));
+		(isShopifyCheckoutPages() && result.data.profile.ship && processCheckboxOrRadio(PATTERN_DIFFERENT_BILLING_ADDRESS, name, input));
 }
 
 function processRegexDIY(name, elem, result, mode) {
@@ -530,7 +415,7 @@ function processMath(regex, name, input, mode) {
 		try {
 			var val = eval(m[0].replace(/x/, "*").replace(/\[/, "(").replace(/\]/, ")").replace(/\{/, "(").replace(/\}/, ")").replace(/\=/, "").replace(/\?/, ""));
 			if (val) {
-				return processInputWithDispatchEvent(input, getVal(new String(val)), mode);
+				return processInputWithDispatchEvent(input, getValue(new String(val)), mode);
 			}
 		} catch (e) {
 			// do nothing
@@ -578,12 +463,12 @@ function processRegexSelect(name, input, result) {
 
 	var address = getAddress(name, result);
 
-	return processNameSelect(REGEX_NAME_STATE, name, input, address.province, false) ||
-		processNameSelect(REGEX_NAME_COUNTRY, name, input, address.country, false) ||
-		processNameSelect(REGEX_NAME_CARD_EXP_MONTH, name, input, result.data.profile.card.expMonth, true) ||
-		processNameSelect(REGEX_NAME_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear, true) ||
-		processNameSelect(REGEX_NAME_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear.substring(2, 4), true) ||
-		processNameSelect(REGEX_NAME_CARD_TYPE, name, input, (result.data.profile.card.number), false);
+	return processNameSelect(PATTERN_STATE, name, input, address.province, false) ||
+		processNameSelect(PATTERN_COUNTRY, name, input, address.country, false) ||
+		processNameSelect(PATTERN_CARD_EXP_MONTH, name, input, result.data.profile.card.expMonth, true) ||
+		processNameSelect(PATTERN_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear, true) ||
+		processNameSelect(PATTERN_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear.substring(2, 4), true) ||
+		processNameSelect(PATTERN_CARD_TYPE, name, input, (result.data.profile.card.number), false);
 }
 
 function processInputAIO(result, tagName) {
@@ -603,7 +488,7 @@ function processSingleInput(input, result) {
 			return;
 		}
 
-		var ac = getVal(input.getAttribute("autocomplete"));
+		var ac = getValue(input.getAttribute("autocomplete"));
 		if (ac) {
 			var address = getAddress(ac, result);
 			var mode = getMode(result.data.mode);
@@ -628,7 +513,7 @@ function processSingleInput(input, result) {
 			return;
 		}
 
-		if (processRegex(getVal(input.name), input, result)) {
+		if (processRegex(getValue(input.name), input, result)) {
 			postProcess(input);
 			return;
 		}
@@ -638,7 +523,7 @@ function processSingleInput(input, result) {
 			return;
 		}
 
-		if (processRegex(getVal(input.id), input, result) || processRegex(input.getAttribute("data-checkout"), input, result) || processMath(REGEX_MATH, getLabelText(input), input, mode)) {
+		if (processRegex(getValue(input.id), input, result) || processRegex(input.getAttribute("data-checkout"), input, result) || processMath(REGEX_MATH, getLabelText(input), input, mode)) {
 			postProcess(input);
 			return;
 		}
@@ -663,7 +548,7 @@ function processSelect(result) {
 				continue;
 			}
 
-			var ac = getVal(input.getAttribute("autocomplete"));
+			var ac = getValue(input.getAttribute("autocomplete"));
 			if (ac) {
 				var address = result.data.profile.bill;
 				if (result.data.profile.ship && ac.includes("shipping")) {
@@ -682,7 +567,7 @@ function processSelect(result) {
 				continue;
 			}
 
-			if (processRegexSelect(getVal(input.id), input, result)) {
+			if (processRegexSelect(getValue(input.id), input, result)) {
 				postProcess(input);
 				continue;
 			}
@@ -694,7 +579,7 @@ function postProcess(input) {
 	elements.push(input);
 	if (items.length == 0) {
 		var url = null;
-		href = getVal(window.location.href);
+		href = getValue(window.location.href);
 
 		if (isShopifyCheckoutPages()) {
 			var products = document.getElementsByClassName("product__image");
@@ -714,7 +599,7 @@ function postProcess(input) {
 			var products = document.getElementsByClassName("product");
 			if (products) {
 				for (var product of products) {
-					items.push({ "src": AUTO_FILL_ICON, "alt": getVal(product.innerText) });
+					items.push({ "src": AUTO_FILL_ICON, "alt": getValue(product.innerText) });
 				}
 
 				var sf = document.getElementsByName("storefront")[0];
@@ -833,14 +718,14 @@ function getValCustomSite(val) {
 		return "card number";
 	}
 
-	return getVal(val);
+	return getValue(val);
 }
 
 function mutationCallback(mutationsList) {
 	mutationsList.forEach(mutation => {
 		if (mutation.attributeName === "class") {
 			var target = mutation.target;
-			if (target && getVal(target.className).includes("invalid")) {
+			if (target && getValue(target.className).includes("invalid")) {
 				focusElement(target);
 			}
 		}

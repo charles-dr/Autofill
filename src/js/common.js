@@ -1,41 +1,9 @@
 
 
-var EVENT_PARAMS = { bubbles: true };
-const GLOBAL_E_GET_MERCHANT_REGEX = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
 const API_ENDPOINT = "https://www.restockintel.com/api/v1";
 const API_KEY = 'ak_ihs5TCJ8TX6FXCrxMf5d';
-
-function getGlobalEMerchant() {
-    var html = document.getElementsByTagName("html")[0];
-    if (html && html.innerHTML) {
-        var m = html.innerHTML.match(GLOBAL_E_GET_MERCHANT_REGEX);
-        if (m) {
-            // debugger;
-            // console.log('match', m);
-            return m[1];
-        }
-    }
-    return "https://webservices.global-e.com";
-}
-
-function getVal(value) {
-    if (value) {
-        return value.trim().toLowerCase().replace(/\s+/, " ");;
-    }
-    return "";
-}
-
-function dispatchChangeEvent(elem) {
-    if (elem) {
-        dispatchEvent(elem, EVENT_PARAMS, "change");
-    }
-}
-
-function dispatchEvent(elem, params, type) {
-    if (typeof elem.dispatchEvent === "function") {
-        elem.dispatchEvent(new Event(type, params));
-    }
-}
+var EVENT_PARAMS = { bubbles: true };
+const GLOBAL_E_GET_MERCHANT_REGEX = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
 
 function docReady(fn) {
     // see if DOM is already available
@@ -91,8 +59,34 @@ function ajaxGet(url, headers) {
     })
 }
 
+function getGlobalEMerchant() {
+    var html = document.getElementsByTagName("html")[0];
+    if (html && html.innerHTML) {
+        var m = html.innerHTML.match(GLOBAL_E_GET_MERCHANT_REGEX);
+        if (m) {
+            // debugger;
+            // console.log('match', m);
+            return m[1];
+        }
+    }
+    return "https://webservices.global-e.com";
+}
+
+function getValue(value) {
+    if (value) {
+        return value.trim().toLowerCase().replace(/\s+/, " ");;
+    }
+    return "";
+}
+
 function authURL(url) {
     return API_ENDPOINT + url;
+}
+
+function dispatchChangeEvent(elem) {
+    if (elem) {
+        dispatchEvent(elem, EVENT_PARAMS, "change");
+    }
 }
 
 function storeActivationInfo(info, callback = null) {
@@ -106,6 +100,12 @@ function storeActivationInfo(info, callback = null) {
             });
         }
     })
+}
+
+function dispatchEvent(elem, params, type) {
+    if (typeof elem.dispatchEvent === "function") {
+        elem.dispatchEvent(new Event(type, params));
+    }
 }
 
 function unauthorizeUser(callback = null) {
@@ -144,4 +144,100 @@ function showAlertModal(content, title, showOk = true, showCancel = false) {
         document.querySelector('.modal .modal-cancel').classList.add('hidden');
     }
     showModal();
+}
+
+function dispatchKeydownEvent(elem) {
+	if (elem) {
+		dispatchEvent(elem, EVENT_PARAMS, "keydown");
+	}
+}
+
+function dispatchClickEvent(elem) {
+	if (elem) {
+		// dispatchEvent(elem, EVENT_PARAMS, "mousedown");
+		// elem.dispatchEvent(new Event('mousedown'));
+		const attrName = 'auto-checkout-done';
+		// if (elem.attributes[attrName] === undefined) {
+		elem.click(); //console.log('[dispatched]', elem);
+		elem.attributes[attrName] = 'true';
+		// }
+
+		// var e = document.createEvent('HTMLEvents');
+		// e.initEvent('mousedown', false, true);
+		// elem.dispatchEvent(e);
+	}
+}
+
+function setSelectValue(elem, val, isNumeric) {
+	if (elem && elem.options && val) {
+		for (var val of val.split("/")) {
+			for (var opt of elem.options) {
+				value = getStringOrNumeric(val, isNumeric);
+				if (getStringOrNumeric(opt.value, isNumeric) === value || getStringOrNumeric(opt.innerText, isNumeric) === value
+					|| (opt.getAttribute("data-code") && getStringOrNumeric(opt.getAttribute("data-code"), isNumeric) === value)) {
+					if (opt.selected || elem.value === opt.value || elem.getAttribute("af")) {
+						elem.setAttribute("af", true);
+						break;
+					} else {
+						opt.selected = true;
+						elem.value = opt.value;
+						elem.setAttribute("af", true);
+						dispatchChangeEvent(elem);
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+function setValue(elem, val) {
+	if (elem) {
+		elem.value = val;
+		return true;
+	}
+	return false;
+}
+
+function getValue(elem) {
+	if (elem && elem.value) {
+		return elem.value.trim();
+	}
+
+	return "";
+}
+
+function getValNumeric(value) {
+	if (value) {
+		return parseInt(value);
+	}
+	return NaN;
+}
+
+function getStringOrNumeric(value, isNumeric) {
+	if (isNumeric) {
+		return getValNumeric(value);
+	}
+
+	return getValue(value);
+}
+
+function focusElement(elem) {
+	if (elem) {
+		elem.focus();
+	}
+}
+
+function blurElement(elem) {
+	if (elem) {
+		elem.blur();
+	}
+}
+
+function dispatchInputEvent(elem) {
+	if (elem) {
+		dispatchEvent(elem, EVENT_PARAMS, "input");
+	}
 }
