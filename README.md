@@ -29,8 +29,11 @@
                 "avatar_url": "https://cdn.discordapp.com/avatars/...png"
             }
         },
+        "options": {
+            "autoCheckout": "false"
+        },
         "customs": [
-            {"keyword": "keyword1", "value": "value1 },
+            {"keyword": "keyword1", "value": "value1 }
         ]
     }
  }

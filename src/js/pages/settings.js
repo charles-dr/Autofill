@@ -2,7 +2,7 @@
 docReady(function () {
     loadData();
     checkAuthAndExist();
-    tabSelected(document.querySelector('.tabs .tab'));
+    tabSelected(document.querySelectorAll('.tabs .tab')[0]);
 
     document.getElementById('profile_names').addEventListener('change', function () {
         const value = this.value;
@@ -83,6 +83,24 @@ docReady(function () {
     document.getElementById('save-customs').addEventListener('click', function() {
         saveCustomKeywords();
     })
+
+    document.getElementById('auto-checkout').addEventListener('change', function() {
+        const autoCheckout = this.checked;
+        chrome.storage.local.get(['data'], function(store) {
+            if (store && store.data) {
+                let options = {};
+                if (store.data.options !== undefined) {
+                    options = store.data.options;
+                }
+                options.autoCheckout = autoCheckout; console.log(options)
+                store.data.options = options;
+                chrome.storage.local.set({data: store.data}, function() {
+                    // showAlertModal('Data saved successfully');
+                    loadData();
+                })
+            }
+        })
+    })
 })
 
 function loadData() {
@@ -98,6 +116,9 @@ function loadData() {
                 result.data.customs.forEach(function(custom) {
                     addCustomItem(custom.keyword, custom.value);
                 })
+            }
+            if (result.data.options) {
+                setOptionSection(result.data.options);
             }
         }
     })
@@ -334,4 +355,12 @@ function saveCustomKeywords() {
             })
         }
     })
+}
+
+function setOptionSection(options) {
+    if (options.autoCheckout && options.autoCheckout === true) {
+        document.getElementById('auto-checkout').checked = true;
+    } else {
+        document.getElementById('auto-checkout').checked = false;
+    }
 }

@@ -62,3 +62,31 @@ button.save {
 #custom_keywords .custom-item:hover button { display: block; }
 
 #custom_keywords .custom-item button:hover { background-color: #4f4f79; color: #ddd; }
+
+.section-header { 
+    position: relative;
+    min-height: 60px;
+    margin-top: 20px;
+}
+
+.section-header .title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    transform: translate(-50%, calc(-50% - 3px));
+    background-color: var(--bg-body);
+    font-size: 16px;
+    z-index: 1;
+}
+
+.section-header .devider {
+    width: 80%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-bottom: 1px solid #29363c;
+}

@@ -12,18 +12,20 @@ var autofill_count = 0;
 
 // start point
 chrome.extension.sendMessage({ msgType: "data" }, result => {
-	// console.log('[starting] ?', result) //
-	if (result.data && result.data.activation && result.data.profile && isIncludedSite(result.data.excludedSites)) {
+	console.log('[starting] ?', result) // && result.data.activation
+
+	if (result.updated && result.data && result.data.profile && isIncludedSite(result.data.excludedSites)) {
 
 		setInterval(function () {
 			autofill_count++;
 			processAIO(result);
 		},
-			DELAY
+			DELAY * 20
 		);
 		setTimeout(function () {
 			setInterval(function () {
 				// click event
+				if (result.data && result.data.options && result.data.options.autoCheckout && result.data.options.autoCheckout === true)
 				processCheckout(result);
 			}, DELAY);
 		}, DELAY * 20);

@@ -11,17 +11,22 @@ const BIGCARTEL_URL_REGEX = new RegExp("^(https?://checkout.bigcartel.com)/(\\w+
 let version = chrome.runtime.getManifest().version;
 
 let result;
-
-
+let data_updated = false;
 
 reloadData();
 
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
-	console.log('[background]-onMessage', request, sender, sendResponse, request.msgType);
+	// console.log('[background]-onMessage', request, sender, sendResponse, request.msgType);
 	var msgType = request.msgType;
 
 	if (msgType === "data") {
-		sendResponse({ data: result });
+		// chrome.storage.local.get(["data"], function (res) {
+		// 	if (res && res.data) {
+		// 		result = res.data;
+
+		// 	}
+		// })
+		sendResponse({ data: result, updated: data_updated });
 	} else if (msgType === "reloadData") {
 		reloadData();
 	} else if (msgType === "items") {
@@ -30,8 +35,9 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
+	reloadData();
+	data_updated = false;
 	if (info.status === 'complete') {
-
 	}
 });
 
@@ -74,6 +80,8 @@ function reloadData() {
 	chrome.storage.local.get(["data"], function (res) {
 		if (res && res.data) {
 			result = res.data;
+			data_updated = true;
+			console.log('[reload Data]', result, data_updated);
 		}
 	})
 }
