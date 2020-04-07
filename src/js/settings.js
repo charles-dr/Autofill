@@ -196,7 +196,7 @@ function fillProfilesSelect(data) {
     if (data.profiles.length === 0) {
         optionsHTML = `<option value="-1">No profiles</option>`;
     } else {
-        optionsHTML = `<option value="-1">Select profile</option>` + optionsHTML;
+        optionsHTML = `<option value="-1">=</option>` + optionsHTML;
     }
     select.innerHTML = optionsHTML;
 }

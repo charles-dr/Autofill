@@ -86,6 +86,7 @@ function showActivateForm() {
 
 // check if user already authorized. if yes, open settings.html
 function checkActivation() {
+    return chrome.tabs.create({url: 'src/settings.html'});
     chrome.storage.local.get(["data"], function (store) {
         console.log(store);
         if (store && store.data && store.data.activation) {

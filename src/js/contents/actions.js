@@ -48,10 +48,10 @@ function dispatchClickEvent(elem) {
 		// elem.dispatchEvent(new Event('mousedown'));
 		const attrName = 'auto-checkout-done';
 		// if (elem.attributes[attrName] === undefined) {
-			elem.click(); //console.log('[dispatched]', elem);
-			elem.attributes[attrName] = 'true';
+		elem.click(); //console.log('[dispatched]', elem);
+		elem.attributes[attrName] = 'true';
 		// }
-		
+
 		// var e = document.createEvent('HTMLEvents');
 		// e.initEvent('mousedown', false, true);
 		// elem.dispatchEvent(e);
@@ -95,7 +95,7 @@ function getValue(elem) {
 	if (elem) {
 		return elem.value.trim();
 	}
-	
+
 	return "";
 }
 
@@ -127,6 +127,12 @@ function blurElement(elem) {
 }
 
 function processInputWithDispatchEvent(elem, value, mode) {
+	try {
+		setValue(elem, value ? value.trim() : value);
+	} catch (e) {
+		console.error(e);
+	}
+	
 	if (elem && getValue(elem).length == 0) {
 		if (value) {
 			focusElement(elem);
@@ -193,7 +199,6 @@ function isElementInViewport(elem) {
 
 function isParentFormTransparent(elem) {
 	if (elem.form && elem.form.style.opacity) {
-		console.log('opacity', elem.form.style.opacity)
 		return elem.form.style.opacity === 0 ? true : false;
 	}
 	return false;
@@ -220,12 +225,12 @@ function isIncludedSite(excludedSites) {
 	return true;
 }
 
-function isIframe () {
-    try {
-        return window.self !== window.top;
-    } catch (e) {
-        return true;
-    }
+function isIframe() {
+	try {
+		return window.self !== window.top;
+	} catch (e) {
+		return true;
+	}
 }
 
 function processName(regex, name, elem, value, mode) {
@@ -263,11 +268,11 @@ function getSelectName(input) {
 	}
 
 	var parent = input.parentElement;
-    if (parent) {
- 		attr = getAttr(parent, "data-auto-id");
- 		if (attr) {
- 			return attr;
- 		}
+	if (parent) {
+		attr = getAttr(parent, "data-auto-id");
+		if (attr) {
+			return attr;
+		}
 	}
 
 	var name = getVal(input.name);
@@ -291,7 +296,7 @@ function processAcCard(ac, input, card, mode) {
 	return processAc(ac, "cc-number", input, card.number, mode) ||
 		processAc(ac, "cc-exp-month", input, card.expMonth, mode) ||
 		processAc(ac, "cc-exp-year", input, card.expYear, mode) ||
-		processAc(ac, "cc-exp", input, card.expMonth + " / " + card.expYear.substring(2,4), mode) ||
+		processAc(ac, "cc-exp", input, card.expMonth + " / " + card.expYear.substring(2, 4), mode) ||
 		processAc(ac, "cc-csc", input, card.cvv, mode);
 }
 
@@ -299,20 +304,21 @@ function processRegexNameAndEmail(name, input, result, address, mode) {
 	return processName(REGEX_NAME_FULL_NAME, name, input, address.fName + " " + address.lName, mode) ||
 		processName(REGEX_NAME_FIRST_NAME, name, input, address.fName, mode) ||
 		processName(REGEX_NAME_LAST_NAME, name, input, address.lName, mode) ||
-		processName(REGEX_NAME_EMAIL, name, input, result.data.profile.email, mode) ||
-		processName(REGEX_NAME_CARD_NAME, name, input, address.fName + " " + address.lName, mode) ||
-		processName(REGEX_NAME_DISCORD_TAG, name, input, result.data.discord, mode) ||
-		processName(REGEX_NAME_TWITTER_HANDLE, name, input, result.data.twitter, mode);
+		processName(REGEX_NAME_EMAIL, name, input, result.data.profile.email, mode); 
+		// ||
+		// processName(REGEX_NAME_CARD_NAME, name, input, address.fName + " " + address.lName, mode) ||
+		// processName(REGEX_NAME_DISCORD_TAG, name, input, result.data.discord, mode) ||
+		// processName(REGEX_NAME_TWITTER_HANDLE, name, input, result.data.twitter, mode);
 }
 
 function processRegexCard(name, input, card, mode) {
 	return processName(REGEX_NAME_CARD_NUMBER, name, input, card.number, mode) ||
 		processName(REGEX_NAME_CARD_EXP_MONTH, name, input, card.expMonth, mode) ||
 		processName(REGEX_NAME_CARD_EXP_YEAR, name, input, card.expYear, mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE, name, input, card.expMonth + card.expYear.substring(2,4), mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE_MMYY, name, input, card.expMonth + "/" + card.expYear.substring(2,4), mode) ||
+		processName(REGEX_NAME_CARD_EXP_DATE, name, input, card.expMonth + card.expYear.substring(2, 4), mode) ||
+		processName(REGEX_NAME_CARD_EXP_DATE_MMYY, name, input, card.expMonth + "/" + card.expYear.substring(2, 4), mode) ||
 		processName(REGEX_NAME_CARD_EXP_DATE_MM, name, input, card.expMonth, mode) ||
-		processName(REGEX_NAME_CARD_EXP_DATE_YY, name, input, card.expYear.substring(2,4), mode) ||
+		processName(REGEX_NAME_CARD_EXP_DATE_YY, name, input, card.expYear.substring(2, 4), mode) ||
 		processName(REGEX_NAME_CARD_EXP_DATE_YYYY, name, input, card.expYear, mode) ||
 		processName(REGEX_NAME_CARD_CVV, name, input, card.cvv, mode);
 }
@@ -397,21 +403,21 @@ function isDefaultMode(mode) {
 
 
 // start point
-chrome.extension.sendMessage({msgType: "data"}, result => {
+chrome.extension.sendMessage({ msgType: "data" }, result => {
 	console.log('[starting] ?', result) //&& result.data.activation
-	if (result.data  && result.data.profile && isIncludedSite(result.data.excludedSites)) {
-		
-		setInterval(function() {
-				autofill_count ++;
-				processAIO(result);
-			},
+	if (result.data && result.data.profile && isIncludedSite(result.data.excludedSites)) {
+
+		setInterval(function () {
+			autofill_count++;
+			processAIO(result);
+		},
 			DELAY
 		);
-		setTimeout(function() {
-			setInterval(function() {
+		setTimeout(function () {
+			setInterval(function () {
 				// click event
 				processCheckout(result);
-			}, DELAY);			
+			}, DELAY);
 		}, DELAY * 20);
 
 	}
@@ -451,7 +457,7 @@ function attemptCheckout(elem, mode) {
 function processCheckout(result) {
 	// dispatchClickEvent(document.getElementById('continue_button')) ;
 	// console.log(document.querySelectorAll('button').length, document.querySelectorAll('input[type="submit"]').length);
-	for (let button of document.querySelectorAll('button')) { 
+	for (let button of document.querySelectorAll('button')) {
 		attemptCheckout(button, result.data.mode);
 	}
 	for (let submit of document.querySelectorAll('input[type="submit"]')) {
@@ -462,18 +468,18 @@ function processCheckout(result) {
 function addListeners(result) {
 	if (booleanMapDefault.get(ADD_LISTENER)) {
 		for (var input of document.getElementsByTagName("input")) {
-			input.addEventListener("focus", function(evt) {
+			input.addEventListener("focus", function (evt) {
 				focusEvent(evt, result);
 			});
-			mutationObserver.observe(input, {attributes: true});
+			mutationObserver.observe(input, { attributes: true });
 			booleanMapDefault.set(ADD_LISTENER, false);
 		}
-		
+
 		for (var input of document.getElementsByTagName("textarea")) {
-			input.addEventListener("focus", function(evt) {
+			input.addEventListener("focus", function (evt) {
 				focusEvent(evt, result);
 			});
-			mutationObserver.observe(input, {attributes: true});
+			mutationObserver.observe(input, { attributes: true });
 			booleanMapDefault.set(ADD_LISTENER, false);
 		}
 	}
@@ -507,10 +513,10 @@ function processRegex(name, input, result) {
 }
 
 function processRegexDIY(name, elem, result, mode) {
-	if (result.data.diy) {
-		for (var diy of result.data.diy) {
-			if (matchKeyword(name, diy.keyword)) {
-				return processInputWithDispatchEvent(elem, diy.answer, mode);
+	if (result.data.customs) {
+		for (var diy of result.data.customs) {
+			if (matchKeyword(name.toLowerCase(), diy.keyword.toLowerCase())) {
+				return processInputWithDispatchEvent(elem, diy.value, mode);
 			}
 		}
 	}
@@ -518,46 +524,47 @@ function processRegexDIY(name, elem, result, mode) {
 }
 
 function processMath(regex, name, input, mode) {
-     var m = name.replace(/\s/, "").match(regex);
- 
-     if (m) {
-         try {
-         	var val = eval(m[0].replace(/x/, "*").replace(/\[/, "(").replace(/\]/, ")").replace(/\{/, "(").replace(/\}/, ")").replace(/\=/, "").replace(/\?/, ""));
-         	if (val) {
-            	return processInputWithDispatchEvent(input, getVal(new String(val)), mode);
-            }
-        } catch (e) {
-             // do nothing
-        }
-    }
- 
-     return false;
+	var m = name.replace(/\s/, "").match(regex);
+
+	if (m) {
+		try {
+			var val = eval(m[0].replace(/x/, "*").replace(/\[/, "(").replace(/\]/, ")").replace(/\{/, "(").replace(/\}/, ")").replace(/\=/, "").replace(/\?/, ""));
+			if (val) {
+				return processInputWithDispatchEvent(input, getVal(new String(val)), mode);
+			}
+		} catch (e) {
+			// do nothing
+		}
+	}
+
+	return false;
 }
 
-function matchKeyword(title, keywords) {
+function matchKeyword(title, keyword) {
+	// if (title.toLowerCase() == 'discord') 
 	if (title) {
-		for (var group of keywords) {
-			var isMatch = true;
-			for (var keyword of group) {
-				if (keyword.startsWith("-")) {
-					if (title.toLowerCase().includes(keyword.replace("-", ""))) {
-						isMatch = false;
-						break;
-					}
-					continue;
-				}
-
-				if (!title.toLowerCase().includes(keyword)) {
-					isMatch = false;
-					break;
-				}
+		// for (var group of keywords) {
+		var isMatch = true;
+		// for (var keyword of group) {
+		if (keyword.startsWith("-")) {
+			if (title.toLowerCase().includes(keyword.replace("-", ""))) {
+				isMatch = false;
+				// break;
 			}
-			
-			if (isMatch) {
-				return true;
-			}
+			// continue;
 		}
-		
+
+		if (!title.toLowerCase().includes(keyword)) {
+			isMatch = false;
+			// break;
+		}
+		// }
+
+		if (isMatch) {
+			return true;
+		}
+		// }
+
 		return false;
 	}
 
@@ -575,8 +582,8 @@ function processRegexSelect(name, input, result) {
 		processNameSelect(REGEX_NAME_COUNTRY, name, input, address.country, false) ||
 		processNameSelect(REGEX_NAME_CARD_EXP_MONTH, name, input, result.data.profile.card.expMonth, true) ||
 		processNameSelect(REGEX_NAME_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear, true) ||
-		processNameSelect(REGEX_NAME_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear.substring(2,4), true) ||
-		processNameSelect(REGEX_NAME_CARD_TYPE, name, input, getCardType(result.data.profile.card.number), false);
+		processNameSelect(REGEX_NAME_CARD_EXP_YEAR, name, input, result.data.profile.card.expYear.substring(2, 4), true) ||
+		processNameSelect(REGEX_NAME_CARD_TYPE, name, input, (result.data.profile.card.number), false);
 }
 
 function processInputAIO(result, tagName) {
@@ -695,7 +702,7 @@ function postProcess(input) {
 				for (var product of products) {
 					var image = product.getElementsByTagName("img")[0];
 					if (image) {
-						items.push({"src": image.src, "alt": image.getAttribute("alt")});
+						items.push({ "src": image.src, "alt": image.getAttribute("alt") });
 					}
 				}
 				sendItems(items, url);
@@ -704,10 +711,10 @@ function postProcess(input) {
 		}
 
 		if (href.includes("checkout.bigcartel.com")) {
-	     	var products = document.getElementsByClassName("product");
+			var products = document.getElementsByClassName("product");
 			if (products) {
 				for (var product of products) {
-					items.push({"src": AUTO_FILL_ICON, "alt": getVal(product.innerText)});
+					items.push({ "src": AUTO_FILL_ICON, "alt": getVal(product.innerText) });
 				}
 
 				var sf = document.getElementsByName("storefront")[0];
@@ -727,11 +734,11 @@ function postProcess(input) {
 					if (image) {
 						var alt;
 						try {
-							alt = product.innerText.split("\n").slice(0,3).join("\n");
+							alt = product.innerText.split("\n").slice(0, 3).join("\n");
 						} catch (e) {
 							alt = img.alt;
 						}
-						items.push({"src": image.src, "alt": alt});
+						items.push({ "src": image.src, "alt": alt });
 					}
 				}
 			}
@@ -745,7 +752,7 @@ function postProcess(input) {
 				for (var product of products) {
 					var image = product.getElementsByTagName("img")[0];
 					if (image) {
-						items.push({"src": image.src, "alt": image.getAttribute("alt")});
+						items.push({ "src": image.src, "alt": image.getAttribute("alt") });
 					}
 				}
 			}
@@ -759,7 +766,7 @@ function postProcess(input) {
 				for (var product of products) {
 					var image = product.getElementsByTagName("img")[0];
 					if (image) {
-						items.push({"src": image.src, "alt": product.innerText});
+						items.push({ "src": image.src, "alt": product.innerText });
 					}
 				}
 			}
@@ -775,11 +782,11 @@ function postProcess(input) {
 					if (image && image.src.startsWith("http")) {
 						var alt;
 						try {
-							alt = product.innerText.split("\n").slice(1,5).join("\n");
+							alt = product.innerText.split("\n").slice(1, 5).join("\n");
 						} catch (e) {
 							alt = img.alt;
 						}
-						items.push({"src": image.src, "alt": alt});
+						items.push({ "src": image.src, "alt": alt });
 					}
 				}
 			}
@@ -789,26 +796,26 @@ function postProcess(input) {
 
 		if (href.match(GLOBAL_E_PAGE_REGEX)) {
 			url = getGlobalEMerchant();
-			items.push({"src": "", "alt": ""});
+			items.push({ "src": "", "alt": "" });
 			sendItems(items, url);
 			return;
 		}
 
 		if (href.includes("supremenewyork.com/checkout") || href.match(GOOGLE_FORM_REGEX)) {
-			items.push({"src": "", "alt": ""});
+			items.push({ "src": "", "alt": "" });
 			sendItems(items, url);
 			return;
 		}
 
 		if (href.includes("js.stripe.com/v3/elements-inner-card")) {
-			items.push({"src": "", "alt": ""});
+			items.push({ "src": "", "alt": "" });
 			chrome.extension.sendMessage({
-	            msgType: "items",
-	            url: document.referrer
-	        });
-	        return;
+				msgType: "items",
+				url: document.referrer
+			});
+			return;
 		}
-	}	
+	}
 }
 
 function sendItems(items, url) {
@@ -841,9 +848,9 @@ function mutationCallback(mutationsList) {
 }
 
 function decodeHTML(text) {
-    var textArea = document.createElement("textarea");
-    textArea.innerHTML = text;
-    return textArea.value;
+	var textArea = document.createElement("textarea");
+	textArea.innerHTML = text;
+	return textArea.value;
 }
 
 function getMode(mode) {
@@ -852,4 +859,8 @@ function getMode(mode) {
 	}
 
 	return mode;
+}
+
+function prcessCustomKeywords(result) {
+
 }
