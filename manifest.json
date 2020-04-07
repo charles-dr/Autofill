@@ -1,10 +1,10 @@
 {
   "name": "AutoFill",
-  "version": "1.0",
-  "description": "Auto-fill billing information into payment form",
+  "version": "1.0.1",
+  "description": "Restock Autofill extension",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
-    "scripts": ["src/js/background.js"],
+    "scripts": ["src/js/background/background.js"],
     "persistent": false
   },
   "page_action": {
@@ -22,13 +22,12 @@
     "48": "images/get_started48.png",
     "128": "images/get_started128.png"
   },
-  "options_page": "src/options.html",
   "content_scripts": [
     {
        "all_frames": true,
        "css": [],
        "js": [
-          "src/js/common.js",
+          "src/js/common/common.js",
           "src/js/contents/patterns.js",
           "src/js/contents/actions.js"
        ],

@@ -4,6 +4,7 @@ const API_ENDPOINT = "https://www.restockintel.com/api/v1";
 const API_KEY = 'ak_ihs5TCJ8TX6FXCrxMf5d';
 var EVENT_PARAMS = { bubbles: true };
 const GLOBAL_E_GET_MERCHANT_REGEX = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
+var mutationObserver = new MutationObserver(mutationCallback);
 
 function docReady(fn) {
     // see if DOM is already available
@@ -72,21 +73,8 @@ function getGlobalEMerchant() {
     return "https://webservices.global-e.com";
 }
 
-function getValue(value) {
-    if (value) {
-        return value.trim().toLowerCase().replace(/\s+/, " ");;
-    }
-    return "";
-}
-
 function authURL(url) {
     return API_ENDPOINT + url;
-}
-
-function dispatchChangeEvent(elem) {
-    if (elem) {
-        dispatchEvent(elem, EVENT_PARAMS, "change");
-    }
 }
 
 function storeActivationInfo(info, callback = null) {
@@ -100,12 +88,6 @@ function storeActivationInfo(info, callback = null) {
             });
         }
     })
-}
-
-function dispatchEvent(elem, params, type) {
-    if (typeof elem.dispatchEvent === "function") {
-        elem.dispatchEvent(new Event(type, params));
-    }
 }
 
 function unauthorizeUser(callback = null) {
@@ -144,6 +126,25 @@ function showAlertModal(content, title, showOk = true, showCancel = false) {
         document.querySelector('.modal .modal-cancel').classList.add('hidden');
     }
     showModal();
+}
+
+function dispatchEvent(elem, params, type) {
+    if (typeof elem.dispatchEvent === "function") {
+        elem.dispatchEvent(new Event(type, params));
+    }
+}
+
+function dispatchChangeEvent(elem) {
+    if (elem) {
+        dispatchEvent(elem, EVENT_PARAMS, "change");
+    }
+}
+
+function getVal(value) {
+    if (value) {
+        return value.trim().toLowerCase().replace(/\s+/, " ");;
+    }
+    return "";
 }
 
 function dispatchKeydownEvent(elem) {
@@ -202,7 +203,7 @@ function setValue(elem, val) {
 }
 
 function getValue(elem) {
-	if (elem && elem.value) {
+	if (elem) {
 		return elem.value.trim();
 	}
 
@@ -221,7 +222,7 @@ function getStringOrNumeric(value, isNumeric) {
 		return getValNumeric(value);
 	}
 
-	return getValue(value);
+	return getVal(value);
 }
 
 function focusElement(elem) {
@@ -240,4 +241,161 @@ function dispatchInputEvent(elem) {
 	if (elem) {
 		dispatchEvent(elem, EVENT_PARAMS, "input");
 	}
+}
+
+function isDocumentInteractiveComplete() {
+	return document.readyState === "interactive" || document.readyState === "complete";
+}
+
+function validElement(elem) {
+	return elem && isVisible(elem) && (!isElementInViewport(elem) || isShopifyCheckoutPages()) && !isDisabled(elem) && !isParentFormTransparent(elem);
+}
+
+function isVisible(elem) {
+	return elem.offsetWidth > 0 && elem.offsetHeight > 0;
+}
+
+function isDisabled(elem) {
+	return (elem.getAttribute("disabled") && elem.getAttribute("disabled").toLowerCase() === "disabled") || elem.disabled;
+}
+
+function isShopifyCheckoutPages() {
+	if (window.location.href.toLowerCase().includes("/checkouts/")) {
+		if (document.getElementById("shopify-digital-wallet")) {
+			return true;
+		}
+
+		var html = document.getElementsByTagName("html")[0];
+		if (html) {
+			var text = html.innerHTML.toLowerCase();
+
+			return text.includes("shopify.com") || text.includes("shopify-bag-outline") || text.includes("window.shopifybuy");
+		}
+	}
+
+	return false;
+}
+
+function isElementInViewport(elem) {
+	/** Credit to http://jsfiddle.net/cferdinandi/b13ctvd7/ */
+	var bounding = elem.getBoundingClientRect();
+	var out = {};
+	out.top = Math.trunc(bounding.top) < 0;
+	out.left = Math.trunc(bounding.left) < 0;
+	out.bottom = Math.trunc(bounding.bottom) > (Math.trunc(window.innerHeight) || Math.trunc(document.documentElement.clientHeight));
+	out.right = Math.trunc(bounding.right) > (Math.trunc(window.innerWidth) || Math.trunc(document.documentElement.clientWidth));
+	out.any = out.top || out.left || out.bottom || out.right;
+
+	return out.any;
+}
+
+function isParentFormTransparent(elem) {
+	if (elem.form && elem.form.style.opacity) {
+		return elem.form.style.opacity === 0 ? true : false;
+	}
+	return false;
+}
+
+/** accepts excluded sites list paramter **/
+function isIncludedSite(excludedSites) {
+	if (excludedSites) {
+		var sites = excludedSites.toLowerCase().split(",");
+		if (sites && sites.length > 0) {
+			var referrer = isIframe() && document.referrer ? document.referrer.toLowerCase() : document.location.href;
+			for (var site of sites) {
+				site = getVal(site);
+				if (site === "") {
+					continue;
+				}
+				if (referrer.includes(site)) {
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+function isIframe() {
+	try {
+		return window.self !== window.top;
+	} catch (e) {
+		return true;
+	}
+}
+
+function getValCustomSite(val) {
+	if (val === "number" && href.includes("supremenewyork.com")) {
+		return "card number";
+	}
+
+	return getVal(val);
+}
+
+function mutationCallback(mutationsList) {
+	mutationsList.forEach(mutation => {
+		if (mutation.attributeName === "class") {
+			var target = mutation.target;
+			if (target && getVal(target.className).includes("invalid")) {
+				focusElement(target);
+			}
+		}
+	});
+}
+
+function getCardType(number) {
+	for (const [key, value] of MAP_CARD_TYPE) {
+		if (number.match(key)) {
+			return value;
+		}
+	}
+
+	return "";
+}
+
+function getLabelText(input) {
+	var id = input.id;
+	if (id) {
+		var label = document.querySelector("label[for='" + id + "']");
+		if (label) {
+			return getVal(label.innerText);
+		}
+	}
+
+	var parent = input.parentElement;
+	if (parent) {
+		if (parent.tagName.toLowerCase() === "label") {
+			return getVal(parent.innerText);
+		}
+
+		var previous = parent.previousElementSibling;
+		if (previous && previous.tagName.toLowerCase() === "label") {
+			return getVal(previous.innerText);
+		}
+	}
+
+	return "";
+}
+
+function getAddress(name, result) {
+	var address = result.data.profile.bill;
+	if (result.data.profile.ship && name.includes("ship")) {
+		address = result.data.profile.ship;
+	}
+
+	return address;
+}
+
+function getAttr(input, attr) {
+	var attribute = "";
+	if (input) {
+		attribute = getVal(input.getAttribute(attr));
+	}
+
+	return attribute;
+}
+
+function isDefaultMode(mode) {
+	return mode === undefined || mode === "1"
 }

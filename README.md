@@ -4,7 +4,6 @@
 - fill the checkout form automatically 
 - save billing information
 
-
 ## data structure
 ```json
  {

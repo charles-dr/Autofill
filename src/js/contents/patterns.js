@@ -1,8 +1,7 @@
-/*
-
-Source: https://cs.chromium.org/chromium/src/components/autofill/core/common/autofill_PATTERN_constants.cc?g=0
-
+/**
+    ref: https://cs.chromium.org/chromium/src/components/autofill/core/common/autofill_PATTERN_constants.cc?g=0
 */
+
 const PATTERN_FULL_NAME = new RegExp(
     "^name|full.?name|your.?name|customer.?name|bill.?name|ship.?name"
     + "|name.*first.*last|firstandlastname" , "i");
@@ -87,14 +86,14 @@ var GLOBAL_E_PAGE_REGEX = new RegExp("^https?://webservices.global-e.com/Checkou
 var GOOGLE_FORM_REGEX = new RegExp("^https?://docs.google.com/forms/.*?/viewform", "i");
 var ADD_LISTENER = "addListener";
 var DELAY = 25;
-var CARD_TYPE_MAP = new Map(); /* Thanks to https://gist.github.com/genecyber/5a13ba6a553e3995bbcc9cc2e61075fa */
+var MAP_CARD_TYPE = new Map(); /* Thanks to https://gist.github.com/genecyber/5a13ba6a553e3995bbcc9cc2e61075fa */
 var AUTO_FILL_ICON = "https://i.imgur.com/dI7i9Wl.png";
 
-CARD_TYPE_MAP.set(new RegExp("^4"), "Visa");
-CARD_TYPE_MAP.set(new RegExp("^5[1-5]"), "Mastercard");
-CARD_TYPE_MAP.set(new RegExp("^3[47]"), "American Express");
-CARD_TYPE_MAP.set(new RegExp("^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)"), "Discover");
-CARD_TYPE_MAP.set(new RegExp("^36"), "Diners");
-CARD_TYPE_MAP.set(new RegExp("^30[0-5]"), "Diners - Carte Blanche");
-CARD_TYPE_MAP.set(new RegExp("^35(2[89]|[3-8][0-9])"), "JCB");
-CARD_TYPE_MAP.set(new RegExp("^(4026|417500|4508|4844|491(3|7))"), "Visa Electron");
+MAP_CARD_TYPE.set(new RegExp("^4"), "Visa");
+MAP_CARD_TYPE.set(new RegExp("^5[1-5]"), "Mastercard");
+MAP_CARD_TYPE.set(new RegExp("^3[47]"), "American Express");
+MAP_CARD_TYPE.set(new RegExp("^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)"), "Discover");
+MAP_CARD_TYPE.set(new RegExp("^36"), "Diners");
+MAP_CARD_TYPE.set(new RegExp("^30[0-5]"), "Diners - Carte Blanche");
+MAP_CARD_TYPE.set(new RegExp("^35(2[89]|[3-8][0-9])"), "JCB");
+MAP_CARD_TYPE.set(new RegExp("^(4026|417500|4508|4844|491(3|7))"), "Visa Electron");
