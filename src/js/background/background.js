@@ -1,14 +1,9 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 'use strict';
 
 let itemsMap = new Map();
-const DEFAULT_URL_REGEX = new RegExp("^(https?://[\\w.-]+)/?.*", "i");
-const SHOPIFY_URL_REGEX = new RegExp("^(https?://.+?)/.*(?:checkouts|orders)/(\\w+)?(?:$|\\?|/thank_you)", "i");
-const BIGCARTEL_URL_REGEX = new RegExp("^(https?://checkout.bigcartel.com)/(\\w+)/.*", "i");
-let version = chrome.runtime.getManifest().version;
+const PATTERN_DEFAULT_URL = new RegExp("^(https?://[\\w.-]+)/?.*", "i");
+const PATTERN_SHOPIFY = new RegExp("^(https?://.+?)/.*(?:checkouts|orders)/(\\w+)?(?:$|\\?|/thank_you)", "i");
+const PATTERN_BIGCARTEL = new RegExp("^(https?://checkout.bigcartel.com)/(\\w+)/.*", "i");
 
 let result;
 let data_updated = false;
@@ -16,16 +11,9 @@ let data_updated = false;
 reloadData();
 
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
-	// console.log('[background]-onMessage', request, sender, sendResponse, request.msgType);
 	var msgType = request.msgType;
 
 	if (msgType === "data") {
-		// chrome.storage.local.get(["data"], function (res) {
-		// 	if (res && res.data) {
-		// 		result = res.data;
-
-		// 	}
-		// })
 		sendResponse({ data: result, updated: data_updated });
 	} else if (msgType === "reloadData") {
 		reloadData();
@@ -43,7 +31,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 
 // restrict the activation based active domains
 chrome.runtime.onInstalled.addListener(function () {
-	console.log('[Installed]');
 	chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
 		chrome.declarativeContent.onPageChanged.addRules([{
 			conditions: [new chrome.declarativeContent.PageStateMatcher({
@@ -85,21 +72,16 @@ function reloadData() {
 	})
 }
 
-function getWebhook() {
-	console.log('[BK] - getWebhook');
-	return webhooks[getRandomNumber(0, webhooks.length)];
-}
-
 function processItems(request, sender) {
 	// console.log('[bk] - processItems', request, sender);
 	if (request.url) {
-		var m = sender.url.match(BIGCARTEL_URL_REGEX);
+		var m = sender.url.match(PATTERN_BIGCARTEL);
 		if (m) {
 			itemsMap.set(sender.tab.id, {url: m[1], key: m[2], items: request.items, store: request.url});
 			return;
 		}
 
-		m = request.url.match(DEFAULT_URL_REGEX);
+		m = request.url.match(PATTERN_DEFAULT_URL);
 		if (m) {
 			if (request.items) {
 				itemsMap.set(sender.tab.id, {url: m[1], items: request.items});
@@ -109,7 +91,7 @@ function processItems(request, sender) {
 		}
 	} else {
 		var url = sender.url.toLowerCase();
-		var m = url.match(SHOPIFY_URL_REGEX);
+		var m = url.match(PATTERN_SHOPIFY);
 		if (m) {
 			itemsMap.set(sender.tab.id, {url: m[1], key: m[2], items: request.items});
 			return;
@@ -119,7 +101,7 @@ function processItems(request, sender) {
 			return;
 		}
 		
-		m = url.match(DEFAULT_URL_REGEX);
+		m = url.match(PATTERN_DEFAULT_URL);
 		if (m) {
 			itemsMap.set(sender.tab.id, {url: m[1], items: request.items});
 			return;

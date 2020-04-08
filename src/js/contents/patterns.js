@@ -1,82 +1,36 @@
-/**
-    ref: https://cs.chromium.org/chromium/src/components/autofill/core/common/autofill_PATTERN_constants.cc?g=0
-*/
 
-const PATTERN_FULL_NAME = new RegExp(
-    "^name|full.?name|your.?name|customer.?name|bill.?name|ship.?name"
-    + "|name.*first.*last|firstandlastname" , "i");
-const PATTERN_FIRST_NAME = new RegExp(
-	"first.*name|initials|fname|first$|given.*name", "i");
-const PATTERN_LAST_NAME = new RegExp(
-	"last.*name|lname|surname|last$|secondname|family.*name", "i");
-const PATTERN_ADDRESS_1 = new RegExp(
-    "^address$|address[_-]?line(one)?|address1|addr1|street", "i");
-const PATTERN_ADDRESS_2 = new RegExp(
-	"address[_-]?line(2|two)|address.?2|addr2|street.?(?:#|no|num|nr)|suite|unit", "i");
-const PATTERN_CITY = new RegExp(
-	"city|town", "i");
-const PATTERN_STATE = new RegExp(
-    "(?<!(united|hist|history).?)state|county|region|province", "i");
-const PATTERN_COUNTRY = new RegExp(
-    "country|countries", "i");
-const PATTERN_ZIP = new RegExp(
-    "zip|postal|post.*code|pcode", "i");
-const PATTERN_EMAIL = new RegExp(
-	"e.?mail|google\\s+account|gmail", "i");
-const PATTERN_PHONE = new RegExp(
-    "phone|mobile|contact.?number|tel", "i");
-const PATTERN_CARD_NAME = new RegExp(
-    "card.?(?:holder|owner)|name.*(\\b)?on(\\b)?.*card", "i");
-const PATTERN_CARD_NUMBER = new RegExp(
-    "(add)?(?:card|cc|acct).?(?:number|#|no|num|field)|carn|credit.*?card.*?cnb", "i");
+const PATTERN_ADDRESS_1 = new RegExp("^address$|address[_-]?line(one)?|address1|addr1|street", "i");
+const PATTERN_ADDRESS_2 = new RegExp("address[_-]?line(2|two)|address.?2|addr2|street.?(?:#|no|num|nr)|suite|unit", "i");
 const PATTERN_CARD_CVV = new RegExp(
     "verification|card.?identification|security.?code|card.?code"
     + "|security.?value"
     + "|security.?number|card.?pin|c-v-v"
     + "|(cvn|cvv|cvc|csc|cvd|cid|ccv)(field)?"
     + "|\\bcid\\b", "i");
-const PATTERN_CARD_EXP_MONTH = new RegExp(
-    "exp.*mo|ccmonth|card.?month|addmonth", "i");
-const PATTERN_CARD_EXP_YEAR = new RegExp(
-    "(?:exp|payment|card).*(?:year|yr)", "i");
-const PATTERN_CARD_TYPE = new RegExp(
-    "(credit)?card.*type", "i");
-const PATTERN_CARD_EXP_DATE = new RegExp(
-    "expir|exp.*date|^expfield$", "i");
-const PATTERN_CARD_EXP_DATE_MMYY = new RegExp(
-    "^\\s*MM\\s*/\\s*YY\\s*$"
-, "i");
-const PATTERN_CARD_EXP_DATE_MM = new RegExp(
-    "^\\s*MM\\s*$"
-, "i");
-const PATTERN_CARD_EXP_DATE_YY = new RegExp(
-    "^\\s*YY\\s*$"
-, "i");
-const PATTERN_CARD_EXP_DATE_YYYY = new RegExp(
-    "^\\s*YYYY\\s*$"
-, "i");
-const PATTERN_DISCORD_TAG = new RegExp(
-    "discord.*?(tag)?"
-, "i");
-const PATTERN_TWITTER_HANDLE = new RegExp(
-    "twitter.*?handle"
-, "i");
-const PATTERN_DISCOUNT_CODE = new RegExp(
-    "(?:discount|coupon|promo).*?code"
-, "i");
-const PATTERN_CHECKBOX = new RegExp(
-    "(order)?.*?terms|(?:agree|consent).*?(checkbox)?"
-, "i");
-const PATTERN_DIFFERENT_BILLING_ADDRESS = new RegExp(
-    "different.*?billing.*?address"
-, "i");
-var REGEX_MATH = new RegExp(
-    "[\\d\\.\\[\\]\\(\\)\\{\\}\\-\\+\\*\\/x\\s\\?\\=]+"
-, "i");
-const PATTERN_TO_CHECKOUT = new RegExp(
-    "continue.*?shipping|continue.*?button|pay.*?|donat.*?|complete.*?order|continue.*?payment"
-, "i");
+const PATTERN_CARD_EXP_DATE = new RegExp("expir|exp.*date|^expfield$", "i");
+const PATTERN_CARD_EXP_DATE_MM = new RegExp("^\\s*MM\\s*$", "i");
+const PATTERN_CARD_EXP_DATE_MMYY = new RegExp("^\\s*MM\\s*/\\s*YY\\s*$", "i");
+const PATTERN_CARD_EXP_DATE_YY = new RegExp("^\\s*YY\\s*$", "i");
+const PATTERN_CARD_EXP_DATE_YYYY = new RegExp("^\\s*YYYY\\s*$", "i");
+const PATTERN_CARD_EXP_MONTH = new RegExp("exp.*mo|ccmonth|card.?month|addmonth", "i");
+const PATTERN_CARD_EXP_YEAR = new RegExp("(?:exp|payment|card).*(?:year|yr)", "i");
+const PATTERN_CARD_NAME = new RegExp("card.?(?:holder|owner)|name.*(\\b)?on(\\b)?.*card", "i");
+const PATTERN_CARD_NUMBER = new RegExp("(add)?(?:card|cc|acct).?(?:number|#|no|num|field)|carn|credit.*?card.*?cnb", "i");
+const PATTERN_CARD_TYPE = new RegExp("(credit)?card.*type", "i");
+const PATTERN_CHECKBOX = new RegExp("(order)?.*?terms|(?:agree|consent).*?(checkbox)?", "i");
+const PATTERN_CITY = new RegExp("city|town", "i");
+const PATTERN_COUNTRY = new RegExp("country|countries", "i");
+const PATTERN_DISCORD_TAG = new RegExp("discord.*?(tag)?", "i");
+const PATTERN_EMAIL = new RegExp("e.?mail|google\\s+account|gmail", "i");
+const PATTERN_FIRST_NAME = new RegExp("first.*name|initials|fname|first$|given.*name", "i");
+const PATTERN_FULL_NAME = new RegExp("^name|full.?name|your.?name|customer.?name|bill.?name|ship.?name" + "|name.*first.*last|firstandlastname" , "i");
+const PATTERN_LAST_NAME = new RegExp("last.*name|lname|surname|last$|secondname|family.*name", "i");
+const PATTERN_PHONE = new RegExp("phone|mobile|contact.?number|tel", "i");
+const PATTERN_STATE = new RegExp("(?<!(united|hist|history).?)state|county|region|province", "i");
+const PATTERN_TO_CHECKOUT = new RegExp("continue.*?shipping|continue.*?button|pay.*?|donat.*?|complete.*?order|continue.*?payment", "i");
+const PATTERN_ZIP = new RegExp("zip|postal|post.*code|pcode", "i");
 
+var REGEX_MATH = new RegExp("[\\d\\.\\[\\]\\(\\)\\{\\}\\-\\+\\*\\/x\\s\\?\\=]+", "i");
 
 var ADIDAS_YS_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?(?:adidas|yeezysupply).+?/(?:delivery|payment|COShipping-Show|COSummary2-Start).*", "i");
 var OFFWHITE_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?off---white.com/.+?/checkout/payment.*", "i");
@@ -85,8 +39,8 @@ var FOOTSITE_EU_REGEX = new RegExp("^https?://(?:www.)?(?:footlocker).+?/INTERSH
 var GLOBAL_E_PAGE_REGEX = new RegExp("^https?://webservices.global-e.com/Checkout/v2/.*", "i");
 var GOOGLE_FORM_REGEX = new RegExp("^https?://docs.google.com/forms/.*?/viewform", "i");
 var ADD_LISTENER = "addListener";
-var DELAY = 25;
-var MAP_CARD_TYPE = new Map(); /* Thanks to https://gist.github.com/genecyber/5a13ba6a553e3995bbcc9cc2e61075fa */
+var DURATION = 25;
+var MAP_CARD_TYPE = new Map();
 var AUTO_FILL_ICON = "https://i.imgur.com/dI7i9Wl.png";
 
 MAP_CARD_TYPE.set(new RegExp("^4"), "Visa");

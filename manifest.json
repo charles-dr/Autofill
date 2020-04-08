@@ -1,7 +1,7 @@
 {
   "name": "AutoFill",
-  "version": "1.0.1",
-  "description": "Restock Autofill extension",
+  "version": "1.0.2",
+  "description": "Restock Autofill extension. option for auth checkout added",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
     "scripts": ["src/js/background/background.js"],

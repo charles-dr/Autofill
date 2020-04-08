@@ -5,9 +5,8 @@ const APP_SETTINGS = {
 	auth_endpoint:  "https://www.restockintel.com/api/v1",
 	auth_key: 'ak_ihs5TCJ8TX6FXCrxMf5d'
 }
-
-const EVENT_PARAMS = { bubbles: true };
-const GLOBAL_E_GET_MERCHANT_REGEX = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
+const DISPATCH_PARAM = { bubbles: true };
+const PATTERN_G_MERCHANT = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
 var mutationObserver = new MutationObserver(mutationCallback);
 
 function docReady(fn) {
@@ -67,7 +66,7 @@ function ajaxGet(url, headers) {
 function getGlobalEMerchant() {
     var html = document.getElementsByTagName("html")[0];
     if (html && html.innerHTML) {
-        var m = html.innerHTML.match(GLOBAL_E_GET_MERCHANT_REGEX);
+        var m = html.innerHTML.match(PATTERN_G_MERCHANT);
         if (m) {
             // debugger;
             // console.log('match', m);
@@ -140,7 +139,7 @@ function dispatchEvent(elem, params, type) {
 
 function dispatchChangeEvent(elem) {
     if (elem) {
-        dispatchEvent(elem, EVENT_PARAMS, "change");
+        dispatchEvent(elem, DISPATCH_PARAM, "change");
     }
 }
 
@@ -153,13 +152,13 @@ function getVal(value) {
 
 function dispatchKeydownEvent(elem) {
 	if (elem) {
-		dispatchEvent(elem, EVENT_PARAMS, "keydown");
+		dispatchEvent(elem, DISPATCH_PARAM, "keydown");
 	}
 }
 
 function dispatchClickEvent(elem) {
 	if (elem) {
-		// dispatchEvent(elem, EVENT_PARAMS, "mousedown");
+		// dispatchEvent(elem, DISPATCH_PARAM, "mousedown");
 		// elem.dispatchEvent(new Event('mousedown'));
 		const attrName = 'auto-checkout-done';
 		// if (elem.attributes[attrName] === undefined) {
@@ -243,11 +242,11 @@ function blurElement(elem) {
 
 function dispatchInputEvent(elem) {
 	if (elem) {
-		dispatchEvent(elem, EVENT_PARAMS, "input");
+		dispatchEvent(elem, DISPATCH_PARAM, "input");
 	}
 }
 
-function isDocumentInteractiveComplete() {
+function isDocumentLoadingComplete() {
 	return document.readyState === "interactive" || document.readyState === "complete";
 }
 
