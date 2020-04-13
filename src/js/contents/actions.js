@@ -8,28 +8,26 @@ var href = getVal(window.location.href);
 var ref = isIframe() && document.referrer ? getVal(document.referrer) : getVal(document.location.href);
 var items = [];
 var elements = [];
-var autofill_count = 0;
-
+autofill_count = 0;
 // start point
-chrome.extension.sendMessage({ msgType: "data" }, result => {
-	// console.log('[starting] ?', result) //
-	if (result.updated && result.data && result.data.activation && result.data.profile) {
-		setInterval(function () {
-			autofill_count++;
-			startAutoFill(result);
-		},
-			DURATION * 10
-		);
-		setTimeout(function () {
-			setInterval(function () {
-				// click event
-				if (result.data && result.data.options && result.data.options.autoCheckout && result.data.options.autoCheckout === true)
-					processCheckout(result);
-			}, DURATION);
-		}, DURATION * 20);
 
-	}
-});
+docReady(function() {
+	setTimeout(function() {
+		chrome.extension.sendMessage({ msgType: "data" }, result => {
+			if (result.updated && result.data && result.data.activation && result.data.profile) {
+				setInterval(function () {
+					autofill_count++;
+					startAutoFill(result);
+					if (autofill_count % 10 === 0) {
+						if (result.data && result.data.options && result.data.options.autoCheckout && result.data.options.autoCheckout === true)
+							processCheckout(result);
+					}
+				}, DURATION * 4);
+			}
+		});	
+	}, 200)
+
+})
 
 function startAutoFill(result) {
 	if (isDocumentLoadingComplete()) {
@@ -89,6 +87,7 @@ function operateSelect(result) {
 }
 
 function processCheckout(result) {
+	if (!isDocumentLoadingComplete()) return false;
 	for (let button of document.querySelectorAll('button')) {
 		attemptCheckout(button, result.data.mode);
 	}
@@ -174,14 +173,15 @@ function operateRegexNameAndEmail(name, input, result, address, mode) {
 }
 
 function operateCardWithParttern(name, input, card, mode) {
-	return operateInputWithName(PATTERN_CARD_NUMBER, name, input, card.number, mode) ||
+	return
+	operateInputWithName(PATTERN_CARD_NUMBER, name, input, card.number, mode) ||
 		operateInputWithName(PATTERN_CARD_EXP_MONTH, name, input, card.expMonth, mode) ||
 		operateInputWithName(PATTERN_CARD_EXP_YEAR, name, input, card.expYear, mode) ||
-		operateInputWithName(PATTERN_CARD_EXP_DATE, name, input, card.expMonth + card.expYear.substring(2, 4), mode) ||
 		operateInputWithName(PATTERN_CARD_EXP_DATE_MMYY, name, input, card.expMonth + "/" + card.expYear.substring(2, 4), mode) ||
 		operateInputWithName(PATTERN_CARD_EXP_DATE_MM, name, input, card.expMonth, mode) ||
 		operateInputWithName(PATTERN_CARD_EXP_DATE_YY, name, input, card.expYear.substring(2, 4), mode) ||
 		operateInputWithName(PATTERN_CARD_EXP_DATE_YYYY, name, input, card.expYear, mode) ||
+		operateInputWithName(PATTERN_CARD_EXP_DATE, name, input, card.expMonth + "/" + card.expYear.substring(2, 4), mode) ||
 		operateInputWithName(PATTERN_CARD_CVV, name, input, card.cvv, mode);
 }
 
@@ -242,11 +242,23 @@ function attemptCheckout(elem, mode) {
 	if (!validElement(elem)) return;
 
 	if (!!strId && strId.match(regx)) {
-		dispatchClickEvent(elem);
+		// dispatchClickEvent(elem);
+		clickAutoPayButton(elem);
 	} else if (!!strText && strText.match(regx)) {
-		dispatchClickEvent(elem);
+		// dispatchClickEvent(elem);
+		clickAutoPayButton(elem);
 	} else if (!!strValue && strValue.match(regx)) {
-		dispatchClickEvent(elem);
+		// dispatchClickEvent(elem);
+		clickAutoPayButton(elem);
+	}
+}
+
+function clickAutoPayButton(elem) {
+	// check if button has form
+	if (elem.form && !elem.form.checkValidity()) return false;
+	if (elem && (!elem.attributes['af-clicked'] || window.getComputedStyle(elem.form).getPropertyValue("opacity") > 0)) {
+		elem.attributes['af-clicked'] = 'true';
+		elem.click();
 	}
 }
 

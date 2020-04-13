@@ -2,152 +2,155 @@
 
 const APP_SETTINGS = {
 	auth_recheck: false,
-	auth_endpoint:  "https://www.restockintel.com/api/v1",
+	auth_endpoint: "https://www.restockintel.com/api/v1",
 	auth_key: 'ak_ihs5TCJ8TX6FXCrxMf5d'
 }
 const DISPATCH_PARAM = { bubbles: true };
 const PATTERN_G_MERCHANT = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
 var mutationObserver = new MutationObserver(mutationCallback);
+const AF_ATTRIBUTE = 'REST_AF_DONE';
 
 function docReady(fn) {
-    // see if DOM is already available
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        // call on next available tick
-        setTimeout(fn, 1);
-    } else {
-        document.addEventListener("DOMContentLoaded", fn);
-    }
+	// see if DOM is already available
+	if (document.readyState === "complete" || document.readyState === "interactive") {
+		// call on next available tick
+		setTimeout(fn, 1);
+	} else {
+		document.addEventListener("DOMContentLoaded", fn);
+	}
 }
 
 function ajaxPost(url, data, headers) {
-    var xhttp = new XMLHttpRequest();
-    return new Promise((resolve, reject) => {
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(xhttp.responseText);
-                resolve(JSON.parse(xhttp.responseText));
-            } else if (this.status == 404) {
-                reject(404);
-            } else if (this.status >= 400) {
-                reject(400);
-            }
-        };
-        xhttp.open("POST", url, true);
-        for (let key in headers) {
-            xhttp.setRequestHeader(key, headers[key]);
-        }
-        xhttp.setRequestHeader('Authorization', `Bearer ${APP_SETTINGS.auth_key}`);
-        xhttp.send(JSON.stringify(data));
-    })
+	var xhttp = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				console.log(xhttp.responseText);
+				resolve(JSON.parse(xhttp.responseText));
+			} else if (this.status == 404) {
+				reject(404);
+			} else if (this.status >= 400) {
+				reject(400);
+			}
+		};
+		xhttp.open("POST", url, true);
+		for (let key in headers) {
+			xhttp.setRequestHeader(key, headers[key]);
+		}
+		xhttp.setRequestHeader('Authorization', `Bearer ${APP_SETTINGS.auth_key}`);
+		xhttp.send(JSON.stringify(data));
+	})
 }
 
 function ajaxGet(url, headers) {
-    var xhttp = new XMLHttpRequest();
-    return new Promise((resolve, reject) => {
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                // console.log(xhttp.responseText);
-                resolve(JSON.parse(xhttp.responseText));
-            } else if (this.status == 404) {
-                reject(404);
-            } else if (this.status >= 400) {
-                reject(400);
-            }
-        };
-        xhttp.open("GET", url, true);
-        for (let key in headers) {
-            xhttp.setRequestHeader(key, headers[key]);
-        }
-        xhttp.setRequestHeader('Authorization', `Bearer ${APP_SETTINGS.auth_key}`);
-        xhttp.send();
-    })
+	var xhttp = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		xhttp.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				// console.log(xhttp.responseText);
+				resolve(JSON.parse(xhttp.responseText));
+			} else if (this.status == 404) {
+				reject(404);
+			} else if (this.status >= 400) {
+				reject(400);
+			}
+		};
+		xhttp.open("GET", url, true);
+		for (let key in headers) {
+			xhttp.setRequestHeader(key, headers[key]);
+		}
+		xhttp.setRequestHeader('Authorization', `Bearer ${APP_SETTINGS.auth_key}`);
+		xhttp.send();
+	})
 }
 
 function getGlobalEMerchant() {
-    var html = document.getElementsByTagName("html")[0];
-    if (html && html.innerHTML) {
-        var m = html.innerHTML.match(PATTERN_G_MERCHANT);
-        if (m) {
-            // debugger;
-            // console.log('match', m);
-            return m[1];
-        }
-    }
-    return "https://webservices.global-e.com";
+	var html = document.getElementsByTagName("html")[0];
+	if (html && html.innerHTML) {
+		var m = html.innerHTML.match(PATTERN_G_MERCHANT);
+		if (m) {
+			// debugger;
+			// console.log('match', m);
+			return m[1];
+		}
+	}
+	return "https://webservices.global-e.com";
 }
 
 function authURL(url) {
-    return APP_SETTINGS.auth_endpoint + url;
+	return APP_SETTINGS.auth_endpoint + url;
 }
 
 function storeActivationInfo(info, callback = null) {
-    chrome.storage.local.get(["data"], function (store) {
-        console.log('[Activation] loaded', store);
-        if (store && store.data) {
-            store.data.activation = info;
-            chrome.storage.local.set({ data: store.data }, function () {
-                console.log('[Activation] saved', store);
-                if (callback && typeof callback === 'function') callback();
-            });
-        }
-    })
+	chrome.storage.local.get(["data"], function (store) {
+		console.log('[Activation] loaded', store);
+		let data = {};
+		if (store && store.data) {
+			data = store.data;
+		}
+		data.activation = info;
+		chrome.storage.local.set({ data: data }, function () {
+			console.log('[Activation] saved', store);
+			if (callback && typeof callback === 'function') callback();
+		});
+	})
 }
 
 function unauthorizeUser(callback = null) {
-    chrome.storage.local.get(['data'], function (store) {
-        if (store && store.data) {
-            store.data.activation = null;
-            chrome.storage.local.set({ data: store.data }), function () {
-                console.log('Unauthorized!');
-                if (callback && typeof callback === 'function') {
-                    callback();
-                }
-            }
-        }
-    });
+	chrome.storage.local.get(['data'], function (store) {
+		if (store && store.data) {
+			store.data.activation = null;
+			chrome.storage.local.set({ data: store.data }), function () {
+				console.log('Unauthorized!');
+				if (callback && typeof callback === 'function') {
+					callback();
+				}
+			}
+		}
+	});
 }
 
 function showAlertModal(content, title, showOk = true, showCancel = false) {
-    if (!!title) {
-        document.querySelector('.modal .modal-header').classList.remove('hidden');
-        document.querySelector('.modal .modal-header').innerText = title;
-    } else {
-        document.querySelector('.modal .modal-header').classList.add('hidden');
-    }
+	if (!!title) {
+		document.querySelector('.modal .modal-header').classList.remove('hidden');
+		document.querySelector('.modal .modal-header').innerText = title;
+	} else {
+		document.querySelector('.modal .modal-header').classList.add('hidden');
+	}
 
-    document.querySelector('.modal .modal-body').innerText = content;
+	document.querySelector('.modal .modal-body').innerText = content;
 
-    if (showOk) {
-        document.querySelector('.modal .modal-ok').classList.remove('hidden');
-    } else {
-        document.querySelector('.modal .modal-ok').classList.add('hidden');
-    }
+	if (showOk) {
+		document.querySelector('.modal .modal-ok').classList.remove('hidden');
+	} else {
+		document.querySelector('.modal .modal-ok').classList.add('hidden');
+	}
 
-    if (showCancel) {
-        document.querySelector('.modal .modal-cancel').classList.remove('hidden');
-    } else {
-        document.querySelector('.modal .modal-cancel').classList.add('hidden');
-    }
-    showModal();
+	if (showCancel) {
+		document.querySelector('.modal .modal-cancel').classList.remove('hidden');
+	} else {
+		document.querySelector('.modal .modal-cancel').classList.add('hidden');
+	}
+	showModal();
 }
 
 function dispatchEvent(elem, params, type) {
-    if (typeof elem.dispatchEvent === "function") {
-        elem.dispatchEvent(new Event(type, params));
-    }
+	if (typeof elem.dispatchEvent === "function") {
+		elem.dispatchEvent(new Event(type, params));
+	}
 }
 
 function dispatchChangeEvent(elem) {
-    if (elem) {
-        dispatchEvent(elem, DISPATCH_PARAM, "change");
-    }
+	if (elem) {
+		dispatchEvent(elem, DISPATCH_PARAM, "change");
+	}
 }
 
 function getVal(value) {
-    if (value) {
-        return value.trim().toLowerCase().replace(/\s+/, " ");;
-    }
-    return "";
+	if (value) {
+		return value.trim().toLowerCase().replace(/\s+/, " ");;
+	}
+	return "";
 }
 
 function dispatchKeydownEvent(elem) {
@@ -155,6 +158,22 @@ function dispatchKeydownEvent(elem) {
 		dispatchEvent(elem, DISPATCH_PARAM, "keydown");
 	}
 }
+
+// function dispatchClickEvent(elem) {
+// 	if (elem) {
+// 		dispatchEvent(elem, DISPATCH_PARAM, "mousedown");
+// 		elem.dispatchEvent(new Event('mousedown'));
+// 		const attrName = 'auto-checkout-done';
+// 		if (elem.attributes[attrName] === undefined) {
+// 			elem.click(); //console.log('[dispatched]', elem);
+// 			elem.attributes[attrName] = 'true';
+// 		}
+
+// 		// var e = document.createEvent('HTMLEvents');
+// 		// e.initEvent('mousedown', false, true);
+// 		// elem.dispatchEvent(e);
+// 	}
+// }
 
 function dispatchClickEvent(elem) {
 	if (elem) {
@@ -198,8 +217,11 @@ function setSelectValue(elem, val, isNumeric) {
 }
 
 function setValue(elem, val) {
-	if (elem) {
+	if (elem) { // && elem.attributes[AF_ATTRIBUTE]===undefined
+		// elem.dispatchEvent(new Event('focus'));
 		elem.value = val;
+		elem.dispatchEvent(new Event('blur'));
+		elem.attributes[AF_ATTRIBUTE] = 'true';
 		return true;
 	}
 	return false;
@@ -293,8 +315,9 @@ function isElementInViewport(elem) {
 }
 
 function isParentFormTransparent(elem) {
-	if (elem.form && elem.form.style.opacity) {
-		return elem.form.style.opacity === 0 ? true : false;
+	if (elem.form) {
+		const parent_opacity = window.getComputedStyle(elem.form).getPropertyValue("opacity");
+		return Number(parent_opacity) === 0 ? true : false;
 	}
 	return false;
 }
@@ -395,7 +418,6 @@ function getAttr(input, attr) {
 	if (input) {
 		attribute = getVal(input.getAttribute(attr));
 	}
-
 	return attribute;
 }
 

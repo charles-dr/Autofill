@@ -1,7 +1,7 @@
 
 docReady(function () {
     loadData();
-    checkAuthAndExist();
+    checkAuthAndExist(); // toggle auth
     tabSelected(document.querySelectorAll('.tabs .tab')[0]);
 
     document.getElementById('profile_names').addEventListener('change', function () {
@@ -39,19 +39,19 @@ docReady(function () {
         saveProfile(formData);
     });
 
-    document.getElementById('btn-remove-profile').addEventListener('click', function(e) {
+    document.getElementById('btn-remove-profile').addEventListener('click', function (e) {
         e.preventDefault();
-        chrome.storage.local.get(['data'], function(store) {
+        chrome.storage.local.get(['data'], function (store) {
             if (store && store.data && store.data.profiles) {
                 const current_profile = document.getElementById('profile_names').value;
                 let newProfiles = [];
-                store.data.profiles.forEach(function(profile) {
+                store.data.profiles.forEach(function (profile) {
                     if (profile.name != current_profile) {
                         newProfiles.push(profile);
                     }
                     store.data.profile = newProfiles.length && newProfiles.length > 0 ? newProfiles[0] : null;
                     store.data.profiles = newProfiles;
-                    chrome.storage.local.set({data: store.data}, function() {
+                    chrome.storage.local.set({ data: store.data }, function () {
                         showAlertModal('Data has been removed successfully!');
                         loadData();
                     })
@@ -60,10 +60,10 @@ docReady(function () {
         })
     })
 
-    document.getElementById('btn-new-profile').addEventListener('click', function() {
+    document.getElementById('btn-new-profile').addEventListener('click', function () {
         document.getElementById('profile_names').value = -1;
         const form = document.getElementById('profile_setting');
-        form.querySelectorAll('input').forEach(function(input) {
+        form.querySelectorAll('input').forEach(function (input) {
             input.value = '';
         })
     })
@@ -73,20 +73,20 @@ docReady(function () {
         addCustomItem()
     })
 
-    document.querySelectorAll('.remove-custom').forEach(function(removeBtn) {
-        removeBtn.addEventListener('click', function() {
+    document.querySelectorAll('.remove-custom').forEach(function (removeBtn) {
+        removeBtn.addEventListener('click', function () {
             console.log('wanna remove?');
             this.parentNode.remove();
         })
     })
 
-    document.getElementById('save-customs').addEventListener('click', function() {
+    document.getElementById('save-customs').addEventListener('click', function () {
         saveCustomKeywords();
     })
 
-    document.getElementById('auto-checkout').addEventListener('change', function() {
+    document.getElementById('auto-checkout').addEventListener('change', function () {
         const autoCheckout = this.checked;
-        chrome.storage.local.get(['data'], function(store) {
+        chrome.storage.local.get(['data'], function (store) {
             if (store && store.data) {
                 let options = {};
                 if (store.data.options !== undefined) {
@@ -94,7 +94,7 @@ docReady(function () {
                 }
                 options.autoCheckout = autoCheckout; console.log(options)
                 store.data.options = options;
-                chrome.storage.local.set({data: store.data}, function() {
+                chrome.storage.local.set({ data: store.data }, function () {
                     // showAlertModal('Data saved successfully');
                     loadData();
                 })
@@ -109,17 +109,17 @@ function loadData() {
         if (result && result.data.profile) {
             fillProfileForm(result.data.profile);
             fillProfilesSelect(result.data);
-            if (result.data.activation) {
-                fillActivationSection(result.data.activation);
-            }
-            if (result.data.customs) {
-                result.data.customs.forEach(function(custom) {
-                    addCustomItem(custom.keyword, custom.value);
-                })
-            }
-            if (result.data.options) {
-                setOptionSection(result.data.options);
-            }
+        }
+        if (result.data.activation) {
+            fillActivationSection(result.data.activation);
+        }
+        if (result.data.customs) {
+            result.data.customs.forEach(function (custom) {
+                addCustomItem(custom.keyword, custom.value);
+            })
+        }
+        if (result.data.options) {
+            setOptionSection(result.data.options);
         }
     })
 }
@@ -185,12 +185,6 @@ function getFormData() {
             cvv: document.getElementById('cvv').value.trim(),
         }
     };
-    // let inputs = document.querySelectorAll('input');
-    // for (let input of inputs) {
-    //     const name = input.getAttribute('name');
-    //     const value = input.value;
-    //     data[name] = value;
-    // }
     return data;
 }
 
@@ -258,23 +252,9 @@ function filterProfile(profiles) {
 function checkAuthAndExist() {
     chrome.storage.local.get(["data"], function (store) {
         if (store && store.data && store.data.activation) {
-            if (APP_SETTINGS.auth_recheck === false) return true;
-            
-            const token = store.data.activation.activation_token;
-            ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
-                .then(function (res) {
-                    // console.log(res);
-                    if (res.success && res.success === true) {
-                    } else {
-                        unauthorizeUser();
-                        closeSelf();
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    unauthorizeUser();
-                    closeSelf();
-                });
+            return true;
+        } else {
+            closeSelf();
         }
     });
 
@@ -331,7 +311,7 @@ function addCustomItem(keyword = '', value = '') {
     if (!!value) {
         item.querySelectorAll('input')[1].value = value;
     }
-    item.querySelector('.remove-custom').addEventListener('click', function() {
+    item.querySelector('.remove-custom').addEventListener('click', function () {
         item.remove();
     })
     container.append(item);
@@ -340,17 +320,17 @@ function addCustomItem(keyword = '', value = '') {
 function saveCustomKeywords() {
     let customs = [];
     const items = document.querySelectorAll('.custom-item');
-    items.forEach(function(item) {
+    items.forEach(function (item) {
         const keyword = item.querySelectorAll('input')[0].value;
         const value = item.querySelectorAll('input')[1].value;
         if (keyword && value) {
-            customs.push({keyword: keyword, value: value});
+            customs.push({ keyword: keyword, value: value });
         }
     })
-    chrome.storage.local.get(['data'], function(store) {
+    chrome.storage.local.get(['data'], function (store) {
         if (store && store.data) {
             store.data.customs = customs;
-            chrome.storage.local.set({ data: store.data }, function() {
+            chrome.storage.local.set({ data: store.data }, function () {
                 showAlertModal('Data has been saved successfully!');
             })
         }

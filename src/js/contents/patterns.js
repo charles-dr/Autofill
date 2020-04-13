@@ -29,7 +29,7 @@ const PATTERN_PHONE = new RegExp("phone|mobile|contact.?number|tel", "i");
 const PATTERN_STATE = new RegExp("(?<!(united|hist|history).?)state|county|region|province", "i");
 const PATTERN_TO_CHECKOUT = new RegExp("continue.*?shipping|continue.*?button|pay.*?|donat.*?|complete.*?order|continue.*?payment", "i");
 const PATTERN_ZIP = new RegExp("zip|postal|post.*code|pcode", "i");
-
+const PATTERN_DISCOUNT_CODE = new RegExp("(?:discount|coupon|promo).*?code", "i");
 var REGEX_MATH = new RegExp("[\\d\\.\\[\\]\\(\\)\\{\\}\\-\\+\\*\\/x\\s\\?\\=]+", "i");
 
 var ADIDAS_YS_PAYMENT_PAGE_REGEX = new RegExp("^https?://(?:www.)?(?:adidas|yeezysupply).+?/(?:delivery|payment|COShipping-Show|COSummary2-Start).*", "i");

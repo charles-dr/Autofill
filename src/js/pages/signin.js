@@ -7,7 +7,6 @@ docReady(function() {
     document.getElementById('to_activate').addEventListener('click', showActivateForm);
 })
 
-
 function activateUser(e) {
     console.log('[activate User]');
     e.preventDefault();
@@ -28,8 +27,9 @@ function activateUser(e) {
             if (res.success && res.success === true) {
                 document.querySelector('#btn-activate img').style.display = 'none';
                 document.getElementById('btn-activate').attributes.disabled = 'false';
-                storeActivationInfo(res);
-                chrome.tabs.create({url: 'src/settings.html'})
+                storeActivationInfo(res, function() {
+                    chrome.tabs.create({url: 'src/settings.html'})
+                });                
             }
         })
         .catch(function(error) {
@@ -89,35 +89,12 @@ function checkActivation() {
     chrome.storage.local.get(["data"], function (store) {
         console.log(store);
         if (store && store.data && store.data.activation) {
-            if (APP_SETTINGS.auth_recheck === false) {
-                return chrome.tabs.create({url: 'src/settings.html'});
-            }
-
-            const token = store.data.activation.activation_token;
-            document.querySelector('#btn-authorize img').style.display = 'inherit';
-            document.querySelector('#btn-authorize img').attributes.disabled = 'true';
-            ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
-            .then(function(res) {
-                // console.log(res);
-                if (res.success && res.success === true) {
-                    document.querySelector('#btn-authorize img').style.display = 'none';
-                    document.querySelector('#btn-authorize img').attributes.disabled = 'false';
-                    storeActivationInfo(res, function() {
-                        chrome.tabs.create({url: 'src/settings.html'})
-                    });
-                } else {
-                    unauthorizeUser();
-                    showActivateForm();
-                }
-            })
-            .catch(function(error) {
-                console.log(error);
-                unauthorizeUser();
-                showActivateForm();
-            });
+            return chrome.tabs.create({url: 'src/settings.html'});
         } else {
             showActivateForm();
-        }        
+        }      
+        // toggle auth
+        // return chrome.tabs.create({url: 'src/settings.html'});  
     })
 }
 
