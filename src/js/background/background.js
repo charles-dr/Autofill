@@ -46,6 +46,10 @@ chrome.runtime.onInstalled.addListener(function () {
 	}, 10000);
 });
 
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+	reloadData()
+})
+
 function ajaxTest(url, data, headers) {
 	var xhttp = new XMLHttpRequest();
 	return new Promise((resolve, reject) => {

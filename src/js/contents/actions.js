@@ -9,25 +9,43 @@ var ref = isIframe() && document.referrer ? getVal(document.referrer) : getVal(d
 var items = [];
 var elements = [];
 autofill_count = 0;
+var RSTInterval;
 // start point
 
-docReady(function() {
-	setTimeout(function() {
-		chrome.extension.sendMessage({ msgType: "data" }, result => {
-			if (result.updated && result.data && result.data.activation && result.data.profile) {
-				setInterval(function () {
-					autofill_count++;
-					startAutoFill(result);
-					if (autofill_count % 10 === 0) {
-						if (result.data && result.data.options && result.data.options.autoCheckout && result.data.options.autoCheckout === true)
-							processCheckout(result);
+docReady(function () {
+	document.addEventListener('scroll', function () {
+		setTimeout(function () {
+			try {
+				chrome.extension.sendMessage({ msgType: "data" }, (result) => {
+					// console.log(result.data.options)
+					if (result.updated && result.data && result.data.options.autoActive == true && result.data.activation && result.data.profile) {//
+						initIntervalInstance();
+						RSTInterval = setInterval(function () {
+							autofill_count++;
+							startAutoFill(result);
+							if (autofill_count % 10 === 0) {
+								if (result.data && result.data.options && result.data.options.autoCheckout && result.data.options.autoCheckout === true)
+									processCheckout(result);
+							}
+						}, DURATION * 4);
 					}
-				}, DURATION * 4);
+				});
+			} catch (error) {
+				// console.log('[unable to send message to background]', error)
 			}
-		});	
-	}, 200)
-
+		}, 400)
+		setTimeout(() => {
+			initIntervalInstance();
+		}, 3000);
+	})
+	document.dispatchEvent(new CustomEvent('scroll'));
 })
+
+function initIntervalInstance() {
+	if (RSTInterval !== undefined) {
+		clearInterval(RSTInterval);
+	}
+}
 
 function startAutoFill(result) {
 	if (isDocumentLoadingComplete()) {

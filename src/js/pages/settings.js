@@ -101,6 +101,30 @@ docReady(function () {
             }
         })
     })
+
+    document.getElementById('auto-active').addEventListener('change', function() {
+        const autoActive = this.checked;
+        if (autoActive === false) {
+            document.getElementById('auto-checkout').checked = false;
+        }
+        const autoCheckout = document.getElementById('auto-checkout').checked;
+        chrome.storage.local.get(['data'], function (store) {
+            if (store && store.data) {
+                let options = {};
+                if (store.data.options !== undefined) {
+                    options = store.data.options;
+                }
+                options.autoCheckout = autoCheckout;
+                options.autoActive = autoActive;
+                // console.log(options)
+                store.data.options = options;
+                chrome.storage.local.set({ data: store.data }, function () {
+                    // showAlertModal('Data saved successfully');
+                    loadData();
+                })
+            }
+        })
+    })
 })
 
 function loadData() {
@@ -343,4 +367,6 @@ function setOptionSection(options) {
     } else {
         document.getElementById('auto-checkout').checked = false;
     }
+
+    document.getElementById('auto-active').checked = options.autoActive && options.autoActive === true;
 }
