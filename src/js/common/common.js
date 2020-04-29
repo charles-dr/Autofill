@@ -3,7 +3,8 @@
 const APP_SETTINGS = {
 	auth_recheck: false,
 	auth_endpoint: "https://www.restockintel.com/api/v1",
-	auth_key: 'ak_ihs5TCJ8TX6FXCrxMf5d'
+	auth_key: 'ak_ihs5TCJ8TX6FXCrxMf5d',
+	ENC_KEY: 'RESTOCK$$!WITH*(TAI:)',
 }
 const DISPATCH_PARAM = { bubbles: true };
 const PATTERN_G_MERCHANT = new RegExp("redToMerchantURL\\s+:\\s+\"(.+?)\"", "i");
@@ -219,7 +220,7 @@ function setSelectValue(elem, val, isNumeric) {
 function setValue(elem, val) {
 	if (elem) { // && elem.attributes[AF_ATTRIBUTE]===undefined
 		// elem.dispatchEvent(new Event('focus'));
-		elem.value = val;
+		elem.value = val || '';
 		elem.dispatchEvent(new Event('blur'));
 		elem.attributes[AF_ATTRIBUTE] = 'true';
 		return true;
@@ -423,4 +424,44 @@ function getAttr(input, attr) {
 
 function isDefaultMode(mode) {
 	return mode === undefined || mode === "1"
+}
+
+function encTest() {
+	var encryptedAES = CryptoJS.AES.encrypt("Hello Tai", APP_SETTINGS.ENC_KEY).toString();
+    var decryptedBytes = CryptoJS.AES.decrypt(encryptedAES, APP_SETTINGS.ENC_KEY);
+    var plaintext = decryptedBytes.toString(CryptoJS.enc.Utf8);
+    console.log(encryptedAES, decryptedBytes, plaintext);
+}
+
+function encryptData(srcData) {
+	let src = '';
+	if (typeof srcData === "object") {
+		src = JSON.stringify(srcData);
+	} else {
+		src = srcData;
+	}
+	return CryptoJS.AES.encrypt(src, APP_SETTINGS.ENC_KEY).toString();
+}
+
+function decryptData(strSrc) {
+	const decryptedBytes = CryptoJS.AES.decrypt(strSrc, APP_SETTINGS.ENC_KEY);
+	return decryptedBytes.toString(CryptoJS.enc.Utf8);
+}
+
+function downloadFile(data, filename, type) {
+    var file = new Blob([data], {type: type});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
+    }
 }

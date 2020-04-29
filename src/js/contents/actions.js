@@ -17,7 +17,7 @@ docReady(function () {
 		setTimeout(function () {
 			try {
 				chrome.extension.sendMessage({ msgType: "data" }, (result) => {
-					// console.log(result.data.options)
+					console.log(result.data.options)
 					if (result.updated && result.data && result.data.options.autoActive == true && result.data.activation && result.data.profile) {//
 						initIntervalInstance();
 						RSTInterval = setInterval(function () {
@@ -224,7 +224,6 @@ function operateCheckboxOrRadio(regex, name, input) {
 
 	return false;
 }
-
 
 function getNameofSelect(input) {
 	var attr = getAttr(input, "data-auto-id");

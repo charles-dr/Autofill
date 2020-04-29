@@ -18,7 +18,13 @@
         <p class="tab" data-target="configuration">Configuration</p>
     </div>
 
+    <!-- Profile Tab Content -->
     <form class="container tab-pane" id="profile_setting">
+        <div id="im-ex-container">
+            <button class="btn import" id="import-profile">Import</button>
+            <button class="btn export" id="export-profile">Export</button>
+            <input type="file" id="import-file" accept=".RIp"/>
+        </div>
         <div class="form-group">
             <select class="form-control" id="profile_names">
                 <option disabled>No rofiles</option>
@@ -38,7 +44,7 @@
             <input class="form-control" name="address1" id="address1" placeholder="Address Line 1" required />
         </div>
         <div class="form-group">
-            <input class="form-control" name="address2" id="address2" placeholder="Address Line 2" required />
+            <input class="form-control" name="address2" id="address2" placeholder="Address Line 2" />
         </div>
         <div class="form-group flex">
             <input class="form-control w-half" name="city" id="city" placeholder="City" required />
@@ -66,7 +72,7 @@
         </div>
 
     </form>
-
+    <!-- Configuration Tab Content -->
     <div class="container tab-pane" id="configuration">
         <div class="section-header" style="margin-top: 0px;">
             <p class="title">Options</p>
@@ -105,7 +111,7 @@
             <input class="form-control" name="actv_token" id="actv_token" placeholder="Activation Token" readonly />
         </div>
     </div>
-
+    <!-- Custom Keywords Contents -->
     <div class="container tab-pane" id="custom_keywords">
         <div id="custom-container">
         </div>
@@ -124,6 +130,7 @@
         </div>
     </div>
     <div class="overlay"></div>
+    <script src="js/lib/aes.js"></script>
     <script src="js/common/common.js"></script>
     <script src="js/common/modal.js"></script>
     <script src="js/pages/settings.js"></script>

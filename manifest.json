@@ -1,7 +1,7 @@
 {
   "name": "AutoFill",
-  "version": "1.1.5",
-  "description": "Restock Autofill extension. active/inactive option added. Able to edit after autofill in case of auto-checkout=false",
+  "version": "1.1.7",
+  "description": "Restock Autofill extension.Color theme updated. import/export profiles. Auth check in settings page",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   "background": {
     "scripts": ["src/js/background/background.js"],

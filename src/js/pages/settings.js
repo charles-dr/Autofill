@@ -29,10 +29,48 @@ docReady(function () {
     })
 
     // profile settings
+    document.getElementById('export-profile').addEventListener('click', function (e) {
+        e.preventDefault();
+        chrome.storage.local.get(["data"], function (result) {
+            if (result && result.data.profiles) {
+                const profiles = result.data.profiles;
+                const exportData = {
+                    profiles: result.data.profiles,
+                    profile: result.data.profile,
+                }
+                let encrypted = encryptData(exportData);
+                // console.log(encrypted);
+                downloadFile(encrypted, 'profiles.RIp', 'text/plain');
+            } else {
+
+            }
+        })
+    });
+
+    document.getElementById('import-profile').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('import-file').click();
+    })
+
+    document.getElementById('import-file').addEventListener('change', function (e) {
+        e.preventDefault();
+        if (this.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    const strData = decryptData(event.target.result);
+                    const data = JSON.parse(strData);
+                    saveProfileImport(data);
+                } catch (err) { showAlertModal('Sorry, but something went wrong!') }
+            }
+            reader.readAsText(this.files[0])
+        }
+    })
+
     document.getElementById('btn-save-profile').addEventListener('click', function (e) {
         e.preventDefault();
         if (validateForm() === false) {
-            alert('Please fill all the fields!')
+            showAlertModal('Please fill all the fields!')
             return;
         }
         const formData = getFormData();
@@ -102,7 +140,7 @@ docReady(function () {
         })
     })
 
-    document.getElementById('auto-active').addEventListener('change', function() {
+    document.getElementById('auto-active').addEventListener('change', function () {
         const autoActive = this.checked;
         if (autoActive === false) {
             document.getElementById('auto-checkout').checked = false;
@@ -234,7 +272,7 @@ function fillProfilesSelect(data) {
     if (data.profiles.length === 0) {
         optionsHTML = `<option value="-1">No profiles</option>`;
     } else {
-        optionsHTML = `<option value="-1">=</option>` + optionsHTML;
+        optionsHTML = `<option value="-1" disabled>Select profile...</option>` + optionsHTML;
     }
     select.innerHTML = optionsHTML;
 }
@@ -277,6 +315,20 @@ function checkAuthAndExist() {
     chrome.storage.local.get(["data"], function (store) {
         if (store && store.data && store.data.activation) {
             return true;
+            // check through API
+            ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
+                .then(function (res) {
+                    // console.log(res);
+                    if (res.success && res.success === true) {
+                        return true;
+                    } else {
+                        unauthorizeUser(store, closeSelf);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error)
+                    unauthorizeUser(store, closeSelf);
+                });
         } else {
             closeSelf();
         }
@@ -369,4 +421,19 @@ function setOptionSection(options) {
     }
 
     document.getElementById('auto-active').checked = options.autoActive && options.autoActive === true;
+}
+
+function saveProfileImport({ profiles, profile }) {
+    chrome.storage.local.get(["data"], function (result) {
+        let data = {};
+        if (result.data !== undefined) {
+            data = result.data;
+        }
+        data.profile = profile;
+        data.profiles = profiles;
+        chrome.storage.local.set({ data: data }, function (res) {
+            showAlertModal('Imported profiles successfully!');
+            window.location.reload(true);
+        })
+    });
 }

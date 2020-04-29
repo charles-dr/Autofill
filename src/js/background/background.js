@@ -5,7 +5,7 @@ let itemsMap = new Map();
 const PATTERN_DEFAULT_URL = new RegExp("^(https?://[\\w.-]+)/?.*", "i");
 const PATTERN_SHOPIFY = new RegExp("^(https?://.+?)/.*(?:checkouts|orders)/(\\w+)?(?:$|\\?|/thank_you)", "i");
 const PATTERN_BIGCARTEL = new RegExp("^(https?://checkout.bigcartel.com)/(\\w+)/.*", "i");
-
+const ENCRYPT_KEY = 'RESTOCK$$!WITH*(TAI:)';
 let result;
 let data_updated = false;
 
@@ -19,7 +19,7 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
 		reloadData();
 	} else if (msgType === "items") {
 		processItems(request, sender);
-	}
+	} 
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
@@ -30,8 +30,10 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 	}
 });
 
+// installation
 // restrict the activation based active domains
-chrome.runtime.onInstalled.addListener(function () {
+chrome.runtime.onInstalled.addListener(function (details) {
+	console.log(details)
 	chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
 		chrome.declarativeContent.onPageChanged.addRules([{
 			conditions: [new chrome.declarativeContent.PageStateMatcher({
@@ -46,9 +48,6 @@ chrome.runtime.onInstalled.addListener(function () {
 	}, 10000);
 });
 
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-	reloadData()
-})
 
 function ajaxTest(url, data, headers) {
 	var xhttp = new XMLHttpRequest();
@@ -165,11 +164,15 @@ function updateAuthStatus() {
 	});
 }
 
-function unauthorizeUser(store) {
+function unauthorizeUser(store, callback = null) {
 	let data = {};
 	if (store && store.data) {
 		data = store.data;
 	}
 	data.activation = null;
-	chrome.storage.local.set({data: data}, function() {});
+	chrome.storage.local.set({data: data}, function() {
+		if (!!callback && typeof callback === 'function') {
+			callback();
+		}
+	});
 }
