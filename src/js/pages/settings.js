@@ -314,7 +314,8 @@ function filterProfile(profiles) {
 function checkAuthAndExist() {
     chrome.storage.local.get(["data"], function (store) {
         if (store && store.data && store.data.activation) {
-            return true;
+            // return true;
+            const token = store.data.activation.activation_token;
             // check through API
             ajaxGet(authURL(`/activations/${token}`), { 'Content-Type': 'application/json' })
                 .then(function (res) {

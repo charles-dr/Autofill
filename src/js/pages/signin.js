@@ -10,12 +10,14 @@ docReady(function() {
 function activateUser(e) {
     console.log('[activate User]');
     e.preventDefault();
-    
+    const uuid = `${new Date().getTime()}${Math.floor(Math.random() * 1000)}`;
+    const hwid = `RESTOCK-INTEL-HWID-${uuid}`;
+    const device_name = `RESTOCK-INTEL-DEVICE-${uuid}`;
     const data = {
         key: document.getElementById('act_key').value,
         activation: {
-            hwid: document.getElementById('hwid').value,
-            device_name: document.getElementById('device_name').value
+            hwid: hwid,
+            device_name: device_name
         }
     };
     if (true) {
