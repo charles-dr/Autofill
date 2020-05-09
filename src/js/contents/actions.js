@@ -18,7 +18,7 @@ docReady(function () {
 			try {
 				chrome.extension.sendMessage({ msgType: "data" }, (result) => {
 					console.log(result.data.options)
-					if (result.updated && result.data && result.data.options.autoActive == true && result.data.activation && result.data.profile) {//
+					if (result.updated && result.data && result.data.options.autoActive == true && result.data.profile) {// && result.data.activation
 						initIntervalInstance();
 						RSTInterval = setInterval(function () {
 							autofill_count++;

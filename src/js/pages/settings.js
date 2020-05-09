@@ -312,6 +312,7 @@ function filterProfile(profiles) {
 
 /** Check if user already is authorized, if not, close self tab */
 function checkAuthAndExist() {
+    return true;
     chrome.storage.local.get(["data"], function (store) {
         if (store && store.data && store.data.activation) {
             // return true;

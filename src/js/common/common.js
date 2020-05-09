@@ -3,7 +3,7 @@
 const APP_SETTINGS = {
 	auth_recheck: false,
 	auth_endpoint: "https://www.restockintel.com/api/v1",
-	auth_key: 'ak_ihs5TCJ8TX6FXCrxMf5d',
+	auth_key: 'ak_VMwyTncV95jssx8DS-2C',
 	ENC_KEY: 'RESTOCK$$!WITH*(TAI:)',
 }
 const DISPATCH_PARAM = { bubbles: true };
